@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UsuarioController;
+//use App\Http\Controllers\VeiculoController;
+//use App\Http\Controllers\AulaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +17,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth/login');
 });
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [UsuarioController::class, 'index'])->name('index');
+
+Route::prefix('usuarios')->name('usuarios.')->middleware(['auth', 'verified', 'role:Administrador'])->group(function () {
+    Route::get('/', [UsuarioController::class, 'index'])->name('index');
+});
+
+//Route::prefix('veiculos')->name('veiculos.')->middleware(['auth', 'verified'])->group(function () {
+//    Route::get('/', [VeiculoController::class, 'index'])->name('index');
+//});
+//
+//Route::prefix('aulas')->name('aulas.')->middleware(['auth', 'verified'])->group(function () {
+//    Route::get('/', [AulaController::class, 'index'])->name('index');
+//});
