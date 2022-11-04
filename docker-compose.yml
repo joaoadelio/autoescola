@@ -1,0 +1,68 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: sammy
+        uid: 1000
+      context: ./
+      dockerfile: docker/Dockerfile
+    image: autoescola-image
+    container_name: autoescola-app
+    restart: unless-stopped
+    ports:
+        - "5173:5173"
+        - "3000:3000"
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www:delegated
+      - ./docker/docker-compose/php/php.ini:/usr/local/etc/php/php.ini:delegated
+    networks:
+      - autoescola
+
+  db:
+    image: mysql
+    container_name: autoescola-db
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: "rootautoescola"
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - ./docker/docker-compose/mysql:/var/lib/mysq
+    networks:
+      - autoescola
+
+  nginx:
+    image: nginx:alpine
+    container_name: autoescola-nginx
+    restart: unless-stopped
+    ports:
+      - "8008:80"
+    #            - 80:80
+    #            - 443:443
+    volumes:
+      - ./:/var/www:delegated
+      - ./docker/docker-compose/nginx:/etc/nginx/conf.d/
+    #            - ./docker/docker-compose/certbot/conf:/etc/letsencrypt
+    #            - ./docker/docker-compose/certbot/www:/var/www/certbot
+    networks:
+      - autoescola
+
+#    certbot:
+#        image: certbot/certbot:latest
+#        command: certonly --webroot --webroot-path=/var/www/certbot --email miguel@colmeiadigital.com.br --agree-tos --no-eff-email -d www.autoescoladisney.com.br
+#        volumes:
+#            - ./docker/docker-compose/certbot/conf:/etc/letsencrypt
+#            - ./docker/docker-compose/certbot/www:/var/www/certbot
+#        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+#        networks:
+#            - autoescola
+
+networks:
+  autoescola:
+    name: autoescola
+    driver: bridge
