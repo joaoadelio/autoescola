@@ -27,7 +27,7 @@ class UsuarioController extends Controller
     public function index(): Factory|View|Application
     {
         $usuarios = User::paginate(10);
-        $categoria_habilitacao = CategoriaHabilitacao::all();
+        $categoria_habilitacao = CategoriaHabilitacao::all()->toArray();
 
         return view('usuarios.index')->with([
             'usuarios' => $usuarios,

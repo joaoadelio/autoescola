@@ -32,4 +32,11 @@ class UsuarioRequest extends FormRequest
             'password' => 'required',
         ];
     }
+
+    public function messages()
+    {
+        return [
+          'required' => 'O :attribute campo é necessário.'
+        ];
+    }
 }
