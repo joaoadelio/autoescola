@@ -10,11 +10,14 @@
                             {{ __('Usuários') }}
                         </div>
                         <div class="col-6" style="text-align: end">
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                                    data-bs-target="#modal-novo-usuario">
+                            <a
+                                type="button"
+                                class="btn btn-outline-primary"
+                                href="{{ route('usuarios.create') }}"
+                            >
                                 <i class="fa fa-plus"></i>
                                 Usuário
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -30,33 +33,35 @@
                         <th>Ações</th>
                         </thead>
                         <tbody>
-                        @foreach($usuarios as $usuario)
-                            <tr>
-                                <td>{{ $usuario->name }}</td>
-                                <td>{{ $usuario->email }}</td>
-                                <td>{{ $usuario->cpf }}</td>
-                                <td>{{ $usuario->rg ?? '-' }}</td>
-                                <td>0</td>
-                                <td>
-                                    <div class="">
-                                        <button
+                            @foreach($usuarios as $usuario)
+                                <tr >
+                                    <td>{{ $usuario->name }}</td>
+                                    <td>{{ $usuario->email }}</td>
+                                    <td>{{ $usuario->cpf }}</td>
+                                    <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
+                                    <td>0</td>
+                                    <td style="display: inline-flex">
+                                        <a
                                             type="button"
-                                            class="btn btn-warning mr-1"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modal-editar-{{ $usuario->id }}"
+                                            class="btn btn-outline-info"
+                                            style="margin-right: 5px"
+                                            href="{{ route('usuarios.edit', $usuario->id) }}"
                                         >
                                             <i class="fa fa-pencil"></i>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="btn btn-danger"
-                                        >
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
+                                        </a>
+                                        <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" >
+                                            @method('DELETE')
+                                            @csrf
+                                            <button
+                                                type="submit"
+                                                class="btn btn-outline-danger"
+                                            >
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
 

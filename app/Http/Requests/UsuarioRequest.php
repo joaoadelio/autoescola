@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UsuarioRequest extends FormRequest
 {
@@ -23,20 +24,45 @@ class UsuarioRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required',
-            'cpf' => 'required|cpf',
-            'rg' => 'nullable',
-            'grupo' => 'required|max:1',
-            'email' => 'required|email',
-            'password' => 'required',
-        ];
+        switch ( $this->method() ) {
+            case 'POST':
+                return [
+                    'name' => 'required',
+                    'cpf' => 'required|unique:users',
+                    'rg' => 'nullable',
+                    'grupo' => 'required',
+                    'email' => 'required|email|unique:users',
+                    'password' => 'required',
+                    'categoria_habilitacao' => 'required',
+                ];
+                break;
+            case 'PATCH':
+            case 'PUT':
+                $user = $this->user();
+
+                return [
+                    'name' => 'required',
+                    'cpf' => ['required', Rule::unique('users', 'id')->ignore($user->id)],
+                    'rg' => 'nullable',
+                    'grupo' => 'required',
+                    'email' => ['required', Rule::unique('users', 'id')->ignore($user->id)],
+                    'categoria_habilitacao' => 'required',
+                ];
+                break;
+        }
     }
 
-    public function messages()
+    /**
+     * Return message for rules applied
+     *
+     * @return array
+     */
+    public function messages(): array
     {
         return [
-          'required' => 'O :attribute campo é necessário.'
+            'required' => 'O campo :attribute é necessário.',
+            'cpf' => 'CPF já cadastrado',
+            'email' => 'Email já cadastrado'
         ];
     }
 }

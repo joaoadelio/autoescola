@@ -2,11 +2,23 @@ import './bootstrap';
 
 import '../sass/app.scss'
 
-// import { createApp } from "vue";
-import { createApp } from 'vue/dist/vue.esm-bundler';
-import UsuarioForm from "./componenetes/UsuarioForm.vue";
+// import Toast from "vue-toastification";
+// import "vue-toastification/dist/index.css";
 
+/**
+ * Iniciando o VueJS
+ */
+import { createApp } from 'vue/dist/vue.esm-bundler';
 const app = createApp({});
 
-app.component('UsuarioForm', UsuarioForm)
-app.mount('#app');
+/**
+ * Componentes em vuejs
+ */
+// import UsuarioForm from "./componenetes/UsuarioForm.vue";
+// import UsuarioTable from "./componenetes/UsuarioTable.vue";
+//
+// app.component('UsuarioForm', UsuarioForm);
+// app.component('UsuarioTable', UsuarioTable);
+//
+// app.use(Toast).mount('#app');
+

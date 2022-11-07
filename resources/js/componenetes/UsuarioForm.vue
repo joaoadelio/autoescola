@@ -1,10 +1,13 @@
 <template>
-    asdasdasdsa
-    <div class="modal" data-bs-backdrop="static" tabindex="-1" id="modal-novo-usuario">
+<div>
+    <div class="modal" data-bs-backdrop="static" tabindex="-1" :id="id ? id : 'modal-novo-usuario'">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Criar novo usuário</h5>
+                    <h5 class="modal-title" v-if="usuario">
+                        Editiar usuário - <span class="bg-info">#{{ usuario.name }}</span>
+                    </h5>
+                    <h5 class="modal-title" v-else>Criar novo usuário</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -49,7 +52,7 @@
                             >
                                 <option
                                     v-for="categoria in categoriaHabilitacao"
-                                    :value="categoria.categoria"
+                                    :value="categoria.id"
 
                                 >
                                     {{ categoria.categoria }}
@@ -116,17 +119,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success" @click.prevent="submit">Salvar</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="clearForm">Close
+                    <button type="button" class="btn btn-outline-danger" ref="closeModal" data-bs-dismiss="modal" @click="clearForm">
+                        Close
                     </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </template>
 
 <script>
 import {useVuelidate} from '@vuelidate/core';
 import {helpers, required, email, minLength} from '@vuelidate/validators';
+import { useToast } from "vue-toastification";
 
 function iniciandoForm() {
     return {
@@ -144,10 +150,17 @@ export default {
     name: "UsuarioForm",
     props: [
         'categoriaHabilitacao',
-        'roles'
+        'roles',
+        'usuario',
+        'id'
     ],
     setup() {
-        return {v$: useVuelidate()}
+        const toast = useToast();
+
+        return {
+            v$: useVuelidate(),
+            toast
+        }
     },
     data() {
         return {
@@ -182,29 +195,36 @@ export default {
             }
 
             axios.post('http://localhost:8008/usuarios', this.form)
-                .then(response => {
-                    console.log(response.data)
+                .then(async response => {
+                    await this.showMessage(response.data.message);
+                    await this.fecharModal();
+
+                    setTimeout(function (){
+                        window.location.href = '';
+                    }, 3000);
                 }).catch(error => {
-                if (error.response.data.errors) {
-                    console.log(error.response.data.errors)
+                if(error.response.data.errors) {
+                    Object.keys(error.response.data.errors).map(errKey => {
+                        Object.keys(error.response.data.errors[errKey]).map(eKey => {
+                            this.showMessage(error.response.data.errors[errKey][eKey], 'error');
+                        })
+                    })
                 } else {
-                    console.log(error.response.data.message)
+                    this.showMessage(error.response.data.message, 'error');
                 }
-
-
-                // if(error.response.data.errors) {
-                //     Object.keys(error.response.data.errors).map(errKey => {
-                //         Object.keys(error.response.data.errors[errKey]).map(eKey => {
-                //             this.showErrorMessage(error.response.data.errors[errKey][eKey]);
-                //         })
-                //     })
-                // } else {
-                //     this.showErrorMessage('Houve um problema ao tentar salvar os dados! '+error.response.data.message);
-                // }
             })
         },
+        showMessage: function (msg, type = 'success', timeout = 3000) {
+            this.toast[type](msg, {
+                timeout: 3000,
+                newestOnTop: true
+            });
+        },
         clearForm: function () {
-            this.form = iniciandoForm()
+            this.form = iniciandoForm();
+        },
+        fecharModal: async function () {
+            this.$refs.closeModal.click();
         }
     }
 }
