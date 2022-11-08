@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UsuarioRequest;
+use App\Mail\CadastroUsuario;
 use App\Models\CategoriaHabilitacao;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
@@ -10,6 +11,8 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Mockery\Exception;
 use Throwable;
 
@@ -33,7 +36,7 @@ class UsuarioController extends Controller
         return view('usuarios.index')->with([
             'usuarios' => $usuarios,
             'categoria_habilitacao' => $categoria_habilitacao,
-            'grupo_permissao' => User::grupo
+            'grupo_permissao' => User::GRUPO
         ]);
     }
 
@@ -42,8 +45,9 @@ class UsuarioController extends Controller
         $categoria_habilitacao = CategoriaHabilitacao::all();
 
         return view('usuarios.form')->with([
+            'usuario' => null,
             'categoria_habilitacao' => $categoria_habilitacao,
-            'grupo_permissao' => User::grupo
+            'grupo_permissao' => User::GRUPO
         ]);
     }
 
@@ -57,19 +61,24 @@ class UsuarioController extends Controller
     {
         try {
             $dados = $request->all();
-            $grupo_permissao = User::grupo;
+            $grupo_permissao = User::GRUPO;
 
             if (!array_key_exists($dados['grupo'], $grupo_permissao)) {
                 throw new Exception('Inserir grupo existente');
             }
+
+            $dados['password'] = Hash::make($dados['password']);
 
             $usuario = User::create($dados);
 
             $usuario->assignRole($grupo_permissao[$dados['grupo']]);
             $usuario->categoriaHabilitacao()->sync($dados['grupo']);
 
+            Mail::to($usuario)->send(new CadastroUsuario($dados));
+
             return redirect()->route('usuarios.index');
         } catch (Throwable $throwable) {
+            dd($throwable);
             // TODO
         }
     }
@@ -82,7 +91,7 @@ class UsuarioController extends Controller
         return view('usuarios.form')->with([
             'usuario' => $usuario,
             'categoria_habilitacao' => $categoria_habilitacao,
-            'grupo_permissao' => User::grupo
+            'grupo_permissao' => User::GRUPO
         ]);
     }
 
@@ -96,27 +105,26 @@ class UsuarioController extends Controller
     public function update(UsuarioRequest $request, User $usuario): RedirectResponse
     {
         try {
-            $dados = $request->all();
-            $grupo_permissao = User::grupo;
+            $dados = $request->all();dd($dados);
+            $grupo_permissao = User::GRUPO;
 
             if (!array_key_exists($dados['grupo'], $grupo_permissao)) {
                 throw new Exception('Inserir grupo existente');
             }
 
             $permissao = $grupo_permissao[$dados['grupo']];
-            $permissao_id = (int)$dados['grupo'];
-
-//            dd($permissao, $permissao_id);
 
             if (empty($dados['password'])) {
                 unset($dados['password']);
+            } else {
+                $dados['password'] = Hash::make($dados['password']);
             }
 
             $usuario->fill($dados);
             $usuario->save();
 
             $usuario->assignRole($permissao);
-            $usuario->categoriaHabilitacao()->sync([$permissao_id]);
+            $usuario->categoriaHabilitacao()->sync($dados['categoria_habilitacao']);
 
             return redirect()->route('usuarios.index');
         } catch (Throwable $throwable) {

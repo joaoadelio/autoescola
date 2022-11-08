@@ -32,6 +32,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->removeColumn('cpf');
             $table->removeColumn('rg');
+            $table->removeColumn('grupo');
         });
     }
 };

@@ -82,9 +82,10 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <label for="categoria_habilitacaos_id" class="form-label">Categoria Habilitação <span
-                                        class="text-danger">*</span></label>
+                            <div class="col-12 mb-2">
+                                <label for="categoria_habilitacaos_id" class="form-label">
+                                    Categoria <span class="text-danger">*</span>
+                                </label>
                                 <select
                                     class="form-control {{ $errors->has('categoria_habilitacaos_id') ? 'is-invalid' : '' }}"
                                     name="categoria_habilitacaos_id"
@@ -94,12 +95,38 @@
                                         <option
                                             value="{{ $categoria->id }}"
                                             @if($categoria->id == old('categoria_habilitacaos_id') || !empty($veiculo->categoria_habilitacaos_id) && $categoria->id == $veiculo->categoria_habilitacaos_id) selected @endif
-                                        >{{ $categoria->categoria }}</option>
+                                        >
+                                            {{ $categoria->categoria }} ({{ $categoria->alias }})
+                                        </option>
                                     @endforeach
                                 </select>
                                 <div id="categoria_habilitacaos_id" class="invalid-feedback">
                                     @if ($errors->has('categoria_habilitacaos_id'))
                                         {{ $errors->first('categoria_habilitacaos_id') }}
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="instrutor_id" class="form-label">
+                                    Instrutor
+                                </label>
+                                <select
+                                    class="form-control {{ $errors->has('instrutor_id') ? 'is-invalid' : '' }}"
+                                    name="instrutor_id"
+                                >
+                                    <option value="">Selecione o instrutor</option>
+                                    @foreach($instrutores as $instrutor)
+                                        <option
+                                            value="{{ $instrutor->id }}"
+                                            @if($instrutor->id == old('instrutor_id') || !empty($veiculo->instrutor_id) && $instrutor->id == $veiculo->instrutor_id) selected @endif
+                                        >
+                                            {{ $instrutor->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div id="instrutor_id" class="invalid-feedback">
+                                    @if ($errors->has('instrutor_id'))
+                                        {{ $errors->first('instrutor_id') }}
                                     @endif
                                 </div>
                             </div>

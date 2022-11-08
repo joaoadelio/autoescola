@@ -18,8 +18,7 @@ return new class extends Migration
 
             $table->foreignId('usuario_id')->constrained('users');
             $table->foreignId('categoria_habilitacaos_id')->constrained('categoria_habilitacaos');
-
-            $table->timestamps();
+            $table->bigInteger('credito')->default(20);
         });
     }
 

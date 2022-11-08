@@ -9,17 +9,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
-    CONST grupo = [
+    CONST ALUNO = 4;
+
+    CONST GRUPO = [
         1 => 'Administrador',
         2 => 'Administrativo',
         3 => 'Instrutor',
-        4 => 'Aluno',
+        self::ALUNO => 'Aluno',
     ];
 
     /**

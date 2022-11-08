@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VeiculoRequest;
 use App\Models\CategoriaHabilitacao;
+use App\Models\User;
 use App\Models\Veiculo;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -42,9 +43,11 @@ class VeiculoController extends Controller
     public function create(): Factory|View|Application
     {
         $categoria_habilitacao = CategoriaHabilitacao::all();
+        $instrutores = User::role('Instrutor')->get();
 
         return view('veiculos.form')->with([
-            'categoria_habilitacao' => $categoria_habilitacao
+            'categoria_habilitacao' => $categoria_habilitacao,
+            'instrutores' => $instrutores
         ]);
     }
 
@@ -88,10 +91,12 @@ class VeiculoController extends Controller
     public function edit(Veiculo $veiculo): Application|Factory|View
     {
         $categoria_habilitacao = CategoriaHabilitacao::all();
+        $instrutores = User::role('Instrutor')->get();
 
         return view('veiculos.form')->with([
             'veiculo' => $veiculo,
-            'categoria_habilitacao' => $categoria_habilitacao
+            'categoria_habilitacao' => $categoria_habilitacao,
+            'instrutores' => $instrutores
         ]);
     }
 

@@ -46,7 +46,7 @@ class UsuarioRequest extends FormRequest
                     'rg' => 'nullable',
                     'grupo' => 'required',
                     'email' => ['required', Rule::unique('users', 'id')->ignore($user->id)],
-                    'categoria_habilitacao' => 'required',
+                    'categoria_habilitacao' => 'required|categoria_habilitacao',
                 ];
                 break;
         }
@@ -63,7 +63,8 @@ class UsuarioRequest extends FormRequest
             'required' => 'O campo :attribute é necessário.',
             'cpf' => ':attribute já cadastrado',
             'email' => ':attribute já cadastrado',
-            'unique' => ':attribute já cadastrado'
+            'unique' => ':attribute já cadastrado',
+            'categoria_habilitacao' => ':attribute não permitido para o tipo de usuário'
         ];
     }
 }

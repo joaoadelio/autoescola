@@ -54,14 +54,17 @@
                                         class="text-danger">*</span></label>
                                 <select
                                     class="form-control {{ $errors->has('categoria_habilitacao') ? 'is-invalid' : '' }}"
-                                    name="categoria_habilitacao"
+                                    name="categoria_habilitacao[]"
+                                    multiple
                                 >
                                     <option value="">Selecione a categoria habilitação</option>
                                     @foreach($categoria_habilitacao as $categoria)
                                         <option
                                             value="{{ $categoria->id }}"
-                                            @if($categoria->id == old('categoria_habilitacao') || !empty($usuario->categoria_habilitacao) && $categoria->id == $usuario->categoria_habilitacao[0]['id']) selected @endif
-                                        >{{ $categoria->categoria }}</option>
+                                            @if($categoria->id == old('categoria_habilitacao') || !is_null($usuario) && count($usuario->categoria_habilitacao) &&  $usuario->categoria_habilitacao[0]['id'] == $categoria->id) selected @endif
+                                        >
+                                            {{ $categoria->categoria }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 <div id="categoria_habilitacao" class="invalid-feedback">
@@ -75,7 +78,7 @@
                                     Senha @if(!isset($usuario)) <span class="text-danger">*</span> @endif
                                 </label>
                                 <input
-                                    type="text"
+                                    type="password"
                                     class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}"
                                     id="password"
                                     name="password"

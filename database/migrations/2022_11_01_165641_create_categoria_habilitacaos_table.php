@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('categoria');
+            $table->string('alias');
             $table->string('descricao')->nullable();
 
             $table->timestamps();

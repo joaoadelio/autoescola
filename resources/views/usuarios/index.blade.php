@@ -40,7 +40,7 @@
                                     <td>{{ $usuario->cpf }}</td>
                                     <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
                                     <td>0</td>
-                                    <td style="display: inline-flex">
+                                    <td style="display:flex">
                                         <a
                                             type="button"
                                             class="btn btn-outline-info"

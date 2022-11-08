@@ -29,6 +29,7 @@
                             <th>Placa</th>
                             <th>Ano Fabricação / Modelo</th>
                             <th>Categoria</th>
+                            <th>Instrutor</th>
                             <th>Ações</th>
                         </thead>
                         <tbody>
@@ -38,6 +39,7 @@
                                     <td style="text-transform:uppercase">{{ $veiculo->placa }}</td>
                                     <td>{{ $veiculo->ano_fabricacao . ' / ' . $veiculo->ano_modelo }}</td>
                                     <td>{{ $veiculo->categoriaHabilitacao->categoria }}</td>
+                                    <td>{{ $veiculo->instrutor->name ?? '-' }}</td>
                                     <td style="display: flex">
                                         <a
                                             type="button"

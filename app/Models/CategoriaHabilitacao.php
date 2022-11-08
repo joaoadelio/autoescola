@@ -10,6 +10,17 @@ class CategoriaHabilitacao extends Model
 {
     use HasFactory, SoftDeletes;
 
+    CONST A = 1;
+    CONST B = 2;
+    CONST C = 3;
+    CONST D = 4;
+    CONST E = 5;
+
+    CONST AB = [
+        self::A,
+        self::B
+    ];
+
     protected $fillable = [
         'categoria',
         'descricao'
