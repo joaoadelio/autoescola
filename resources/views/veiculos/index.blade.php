@@ -7,49 +7,47 @@
                 <div class="card-header">
                     <div class="row flex align-items-center">
                         <div class="col-6">
-                            {{ __('Usuários') }}
+                            {{ __('Veículos') }}
                         </div>
                         <div class="col-6" style="text-align: end">
                             <a
                                 type="button"
                                 class="btn btn-outline-primary"
-                                href="{{ route('usuarios.create') }}"
+                                href="{{ route('veiculos.create') }}"
                             >
                                 <i class="fa fa-plus"></i>
-                                Usuário
+                                Veículo
                             </a>
                         </div>
                     </div>
                 </div>
 
                 <div class="card-body">
-                    <table class="table table-hover">
+                    <table class="table table-striped">
                         <thead>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>CPF</th>
-                        <th>RG</th>
-                        <th>Crédito</th>
-                        <th>Ações</th>
+                            <th>Descrição</th>
+                            <th>Placa</th>
+                            <th>Ano Fabricação / Modelo</th>
+                            <th>Categoria</th>
+                            <th>Ações</th>
                         </thead>
                         <tbody>
-                            @foreach($usuarios as $usuario)
-                                <tr >
-                                    <td>{{ $usuario->name }}</td>
-                                    <td>{{ $usuario->email }}</td>
-                                    <td>{{ $usuario->cpf }}</td>
-                                    <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
-                                    <td>0</td>
-                                    <td style="display: inline-flex">
+                            @foreach($veiculos as $veiculo)
+                                <tr>
+                                    <td>{{ $veiculo->descricao }}</td>
+                                    <td style="text-transform:uppercase">{{ $veiculo->placa }}</td>
+                                    <td>{{ $veiculo->ano_fabricacao . ' / ' . $veiculo->ano_modelo }}</td>
+                                    <td>{{ $veiculo->categoriaHabilitacao->categoria }}</td>
+                                    <td style="display: flex">
                                         <a
                                             type="button"
                                             class="btn btn-outline-info"
                                             style="margin-right: 5px"
-                                            href="{{ route('usuarios.edit', $usuario->id) }}"
+                                            href="{{ route('veiculos.edit', $veiculo->id) }}"
                                         >
                                             <i class="fa fa-pencil"></i>
                                         </a>
-                                        <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" >
+                                        <form action="{{ route('veiculos.destroy', $veiculo->id) }}" method="POST" >
                                             @method('DELETE')
                                             @csrf
                                             <button
@@ -65,7 +63,7 @@
                         </tbody>
                     </table>
 
-                    {{ $usuarios->links() }}
+                    {{ $veiculos->links() }}
                 </div>
             </div>
         </div>

@@ -39,7 +39,7 @@ class UsuarioController extends Controller
 
     public function create(): Factory|View|Application
     {
-        $categoria_habilitacao = CategoriaHabilitacao::all()->toArray();
+        $categoria_habilitacao = CategoriaHabilitacao::all();
 
         return view('usuarios.form')->with([
             'categoria_habilitacao' => $categoria_habilitacao,

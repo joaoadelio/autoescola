@@ -9,13 +9,13 @@
             <a class="navbar-brand" href="#">Navbar</a>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" aria-current="page" href="{{ route('home') }}">Calendario</a>
+                    <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" href="{{ route('home') }}">Aulas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{request()->routeIs('usuarios.index') ? 'active' : ''}}" href="{{ route('usuarios.index') }}">Alunos</a>
+                    <a class="nav-link {{request()->routeIs('usuarios.index') ? 'active' : ''}}" href="{{ route('usuarios.index') }}">Usuários</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Veículos</a>
+                    <a class="nav-link {{request()->routeIs('usuarios.index') ? 'active' : ''}}" href="{{ route('veiculos.index') }}">Veículos</a>
                 </li>
             </ul>
 

@@ -61,8 +61,9 @@ class UsuarioRequest extends FormRequest
     {
         return [
             'required' => 'O campo :attribute é necessário.',
-            'cpf' => 'CPF já cadastrado',
-            'email' => 'Email já cadastrado'
+            'cpf' => ':attribute já cadastrado',
+            'email' => ':attribute já cadastrado',
+            'unique' => ':attribute já cadastrado'
         ];
     }
 }

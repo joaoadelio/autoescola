@@ -13,8 +13,8 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ $usuario ? route('usuarios.update', $usuario->id) : route('usuarios.store') }}" method="POST" id="cadastrar-usuario">
-                        @if(!empty($usuario))
+                    <form action="{{ isset($usuario) ? route('usuarios.update', $usuario->id) : route('usuarios.store') }}" method="POST" id="cadastrar-usuario">
+                        @if(isset($usuario))
                             @method('PUT')
                         @endif
                         @csrf
@@ -72,7 +72,7 @@
                             </div>
                             <div class="col-12">
                                 <label for="password" class="col-form-label">
-                                    Senha @if(!$usuario) <span class="text-danger">*</span> @endif
+                                    Senha @if(!isset($usuario)) <span class="text-danger">*</span> @endif
                                 </label>
                                 <input
                                     type="text"
@@ -122,7 +122,7 @@
                                     @foreach($grupo_permissao as $index => $grupo)
                                         <option
                                             value="{{ $index  }}"
-                                            @if($index == old('grupo') || $index == $usuario->grupo) selected @endif
+                                            @if($index == old('grupo') || isset($usuario) && $index == $usuario->grupo) selected @endif
                                         >{{ $grupo }}</option>
                                     @endforeach
                                 </select>
