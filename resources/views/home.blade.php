@@ -16,7 +16,7 @@
                                 href="{{ route('aulas.create') }}"
                             >
                                 <i class="fa fa-plus"></i>
-                                Aula
+                                Cadastrar Aula
                             </a>
                         </div>
                     </div>

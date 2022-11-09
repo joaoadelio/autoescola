@@ -6,17 +6,30 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <a class="navbar-brand" href="#">Navbar</a>
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <a class="navbar-brand" href="#">AutoEscola</a>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 mr-5">
                 <li class="nav-item">
                     <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" href="{{ route('home') }}">Aulas</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{request()->routeIs('usuarios.index') ? 'active' : ''}}" href="{{ route('usuarios.index') }}">Usuários</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{request()->routeIs('usuarios.index') ? 'active' : ''}}" href="{{ route('veiculos.index') }}">Veículos</a>
-                </li>
+                @if(!auth()->user()->hasRole('Aluno'))
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->routeIs('usuarios.bloqueados') || request()->routeIs('usuarios.index') ? 'active' : ''}}"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Usuários
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu">
+                            <li>
+                                <a class="nav-link {{request()->routeIs('usuarios.index') ? 'active' : ''}}" href="{{ route('usuarios.index') }}">Ativos</a>
+                            </li>
+                            <li>
+                                <a class="nav-link {{request()->routeIs('usuarios.bloqueados') ? 'active' : ''}}" href="{{ route('usuarios.bloqueados') }}">Bloqueados</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{request()->routeIs('veiculos.index') ? 'active' : ''}}" href="{{ route('veiculos.index') }}">Veículos</a>
+                    </li>
+                @endif
             </ul>
 
             <div class="d-flex" role="search">
@@ -26,12 +39,12 @@
                             {{ \Illuminate\Support\Facades\Auth::user()->name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <form action="{{ route('logout') }}" method="POST" id="logout">
-                                @csrf
-                                <li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" id="logout">
+                                    @csrf
                                     <a class="dropdown-item" href="#" onClick="document.getElementById('logout').submit();">Sair</a>
-                                </li>
-                            </form>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 </ul>

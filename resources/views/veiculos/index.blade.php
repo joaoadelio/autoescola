@@ -16,7 +16,7 @@
                                 href="{{ route('veiculos.create') }}"
                             >
                                 <i class="fa fa-plus"></i>
-                                Veículo
+                                Cadastrar Veículo
                             </a>
                         </div>
                     </div>

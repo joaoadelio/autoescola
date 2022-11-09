@@ -12,10 +12,14 @@ import { createApp } from 'vue/dist/vue.esm-bundler';
 import {Qalendar} from "qalendar";
 import Datepicker from '@vuepic/vue-datepicker';
 
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
+
 import moment from 'moment';
 
 import AulasCadastro from "./componentes/AulasCadastro.vue";
 import UsuarioCalendario from "./componentes/UsuarioCalendario.vue";
+import Modal from "./componentes/Modal.vue";
 
 /**
  * Style componenets vuejs
@@ -35,5 +39,6 @@ app.component('Qalendar', Qalendar);
 app.component('Datepicker', Datepicker);
 app.component('UsuarioCalendario', UsuarioCalendario);
 app.component('AulasCadastro', AulasCadastro);
+app.component('Modal', Modal);
 
-app.mount('#app');
+app.use(Toast).mount('#app');

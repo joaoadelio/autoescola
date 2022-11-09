@@ -1,7 +1,7 @@
 <template>
     <div class="card-body">
         <div class="row">
-            <div class="col-12 mb-3">
+            <div class="col-12 mb-3" v-if="!controle">
                 <label for="categoria_habilitacao" class="form-label">
                     Aluno <span class="text-danger">*</span>
                 </label>
@@ -20,6 +20,27 @@
                 </select>
                 <div id="aluno_id" class="invalid-feedback">
                     {{ v$.form.aluno_id?.$errors[0]?.$message }}
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <label for="categoria_habilitacaos_id" class="form-label">
+                    Categoria <span class="text-danger">*</span>
+                </label>
+                <select
+                    class="form-control"
+                    :class="{ 'is-invalid': v$.form.categoria_habilitacaos_id?.$errors.length }"
+                    v-model="form.categoria_habilitacaos_id"
+                    @blur="v$.form.categoria_habilitacaos_id.$touch"
+                >
+                    <option
+                        v-for="categoria in opcoes.categorias"
+                        :value="categoria.id"
+                    >
+                        {{ categoria.categoria }}
+                    </option>
+                </select>
+                <div id="categoria_habilitacaos_id" class="invalid-feedback">
+                    {{ v$.form.categoria_habilitacaos_id?.$errors[0]?.$message }}
                 </div>
             </div>
             <div class="col-12 mb-3">
@@ -59,6 +80,7 @@
                     :start-date="amanha"
                     :min-date="amanha"
                     :disabled-week-days="[0]"
+                    :disabled="!form.veiculo_id"
                     esc-close
                     auto-position
                     auto-apply
@@ -98,7 +120,15 @@
     </div>
 
     <div class="card-footer text-center">
-        <button type="submit" class="btn btn-success" style="margin-right: 10px" @click.prevent="salvarAula">Salvar</button>
+        <button
+            type="submit"
+            class="btn btn-success"
+            style="margin-right: 10px"
+            @click.prevent="salvarAula"
+            :disabled="desabilitaCadastro"
+        >
+            Salvar
+        </button>
         <button class="btn btn-outline-danger" @click.prevent="cancelar">Cancelar</button>
     </div>
 </template>
@@ -107,6 +137,7 @@
 import {useVuelidate} from '@vuelidate/core';
 import {helpers, required} from '@vuelidate/validators';
 import moment from 'moment';
+import { useToast } from "vue-toastification";
 
 function iniciandoForm() {
     return {
@@ -122,8 +153,21 @@ function iniciandoForm() {
 
 export default {
     name: "AulasCadastro",
+    props: {
+        controle: {
+            type: Number
+        },
+        usuarioId: {
+            type: Number
+        }
+    },
     setup() {
-        return {v$: useVuelidate()}
+        const toast = useToast();
+
+        return {
+            toast,
+            v$: useVuelidate()
+        }
     },
     data() {
         return {
@@ -132,19 +176,31 @@ export default {
             opcoes: {
                 alunos: [],
                 veiculos: [],
-                horarios: []
+                horarios: [],
+                categorias: []
             },
             categorias: [],
-            amanha: moment().add(1, 'days').format('L')
+            amanha: moment().add(1, 'days').format('L'),
+            desabilitaCadastro: false,
+            loading: {
+                cadastro: false
+            }
         }
     },
     async mounted() {
-        await this.obterAlunos();
+        if (!this.controle) {
+            await this.obterAlunos();
+        } else {
+            this.form.aluno_id = this.usuarioId
+        }
     },
     validations() {
         return {
             form: {
                 aluno_id: {
+                    required: helpers.withMessage('Este campo não pode estar vazio', required)
+                },
+                categoria_habilitacaos_id: {
                     required: helpers.withMessage('Este campo não pode estar vazio', required)
                 },
                 veiculo_id: {
@@ -158,69 +214,75 @@ export default {
     },
     methods: {
         salvarAula: async function () {
-            const result = await this.v$.$validate()
+            const result = await this.v$.$validate();
 
             if (!result) {
                 return;
             }
 
+            this.loading.cadastro = true;
+
             axios.post('http://localhost:8008/aulas', this.form)
                 .then(response => {
+                    this.mostraToastMensagem(response.data.message, 'success');
+
                     setTimeout(function () {
                         window.location = 'http://localhost:8008/inicio'
-                    }, 1000)
+                    }, 1500)
                 }).catch(error => {
-                    if(error.response.data.errors) {
+                    if (error.response.data.errors) {
                         Object.keys(error.response.data.errors).map(errKey => {
                             Object.keys(error.response.data.errors[errKey]).map(eKey => {
-                                // this.showErrorMessage(error.response.data.errors[errKey][eKey]);
+                                this.mostraToastMensagem(error.response.data.errors[errKey][eKey], 'error');
                             })
                         })
                     } else {
-                        // this.showErrorMessage('Houve um problema ao tentar salvar os dados! '+error.response.data.message);
+                        this.mostraToastMensagem(error.response.data.message, 'error');
                     }
+                }).finally(() => {
+                    this.loading.cadastro = false;
                 })
-        },
-        limparForm: function () {
-            this.form = iniciandoForm()
         },
         obterAlunos: function () {
             axios.get('http://localhost:8008/usuarios/obter/aluno')
                 .then(response => {
                     this.opcoes.alunos = response.data.data;
                 }).catch(error => {
-                    if(error.response.data.errors) {
-                        Object.keys(error.response.data.errors).map(errKey => {
-                            Object.keys(error.response.data.errors[errKey]).map(eKey => {
-                                // this.showErrorMessage(error.response.data.errors[errKey][eKey]);
-                            })
+                if (error.response.data.errors) {
+                    Object.keys(error.response.data.errors).map(errKey => {
+                        Object.keys(error.response.data.errors[errKey]).map(eKey => {
+                            this.mostraToastMensagem(error.response.data.errors[errKey][eKey], 'error');
                         })
-                    } else {
-                        // this.showErrorMessage('Houve um problema ao tentar salvar os dados! '+error.response.data.message);
-                    }
+                    })
+                } else {
+                    this.mostraToastMensagem(error.response.data.message, 'error');
+                }
+            })
+        },
+        obterCategorias: async function () {
+            axios.post('http://localhost:8008/categorias', {alunoId: this.form.aluno_id})
+                .then(response => {
+                    this.opcoes.categorias = response.data.data;
+                }).catch(error => {
+                    // TODO
                 })
         },
         obterVeiculos: async function () {
-            this.categorias = [];
-            let aluno = this.opcoes.alunos.find(aluno => aluno.id == this.form.aluno_id);
+            this.categorias = [
+                this.form.categoria_habilitacaos_id
+            ];
 
-            aluno.categoria_habilitacao.forEach(categoria => {
-                this.categorias.push(categoria.id)
+            axios.post('http://localhost:8008/veiculos/obter', this.categorias)
+                .then(response => {
+                    this.opcoes.veiculos = response.data.data;
+                }).catch(error => {
+                // TODO
             })
-
-            if (this.categorias.length) {
-                axios.post('http://localhost:8008/veiculos/obter', this.categorias)
-                    .then(response => {
-                        this.opcoes.veiculos = response.data.data;
-                    }).catch(error => {
-                        // TODO
-                    })
-            }
         },
         obterHorarios: function () {
             let form = {
                 data: this.form.data_agendamento,
-                aluno: this.form.aluno_id
+                veiculo_id: this.form.veiculo_id
             }
 
             if (this.form.data_agendamento) {
@@ -229,8 +291,28 @@ export default {
                         this.opcoes.horarios = response.data;
                     }).catch(error => {
                     // TODO
-                })
+                    })
             }
+        },
+        validaQuantidadeAulasAluno: function () {
+            this.desabilitaCadastro = false;
+
+            let form = {
+                aluno_id: this.form.aluno_id,
+                data: this.form.data_agendamento,
+                categoria_habilitacao_id: this.form.categoria_habilitacaos_id
+            };
+
+            axios.post('http://localhost:8008/aulas/data/aluno', form)
+                .then(response => {
+                    this.opcoes.horarios = response.data;
+                }).catch(error => {
+                    this.desabilitaCadastro = true;
+                    this.mostraToastMensagem(error.response.data.message, 'error');
+                })
+        },
+        mostraToastMensagem: function (msg, type) {
+            this.toast[type](msg);
         },
         cancelar: function () {
             return window.location = 'http://localhost:8008/inicio'
@@ -238,15 +320,26 @@ export default {
     },
     watch: {
         'form.aluno_id': function (novoValor) {
+          if (novoValor) {
+              this.obterCategorias();
+          }
+        },
+        'form.categoria_habilitacaos_id': function (novoValor) {
             if (novoValor) {
                 this.obterVeiculos();
             }
         },
-        'form.data_agendamento': function (novoValor) {
+        'form.data_agendamento': async function (novoValor) {
+            if (novoValor) {
+                await this.validaQuantidadeAulasAluno();
+                this.obterHorarios();
+            }
+        },
+        'form.veiculo_id': function (novoValor) {
             if (novoValor) {
                 this.obterHorarios();
             }
-        }
+        },
     }
 }
 </script>

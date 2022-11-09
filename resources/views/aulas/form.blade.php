@@ -12,7 +12,10 @@
                     </div>
                 </div>
 
-                <aulas-cadastro></aulas-cadastro>
+                <aulas-cadastro
+                    :controle="{{ $controle }}"
+                    :usuario-id="{{ $usuarioId }}"
+                ></aulas-cadastro>
 
             </div>
         </div>

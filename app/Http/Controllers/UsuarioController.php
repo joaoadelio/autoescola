@@ -9,7 +9,9 @@ use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Mockery\Exception;
@@ -39,6 +41,11 @@ class UsuarioController extends Controller
         ]);
     }
 
+    /**
+     * Vai para tela de criar usuarios
+     *
+     * @return Factory|View|Application
+     */
     public function create(): Factory|View|Application
     {
         $categoria_habilitacao = CategoriaHabilitacao::all();
@@ -82,6 +89,12 @@ class UsuarioController extends Controller
         }
     }
 
+    /**
+     * Vai para tela de editar os usuarios
+     *
+     * @param User $usuario
+     * @return Factory|View|Application
+     */
     public function edit(User $usuario): Factory|View|Application
     {
         $categoria_habilitacao = CategoriaHabilitacao::all();
@@ -150,6 +163,32 @@ class UsuarioController extends Controller
         }
     }
 
+    /**
+     * Restaura usuarios deletados pelo SoftDeletes do laravel
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function restaurar(int $id): RedirectResponse
+    {
+        try {
+            $usuario = User::onlyTrashed()->findOrFail($id);
+
+            $usuario->restore();
+
+            return redirect()->back();
+        } catch (Throwable $throwable) {
+            dd($throwable);
+            // TODO
+        }
+    }
+
+    /**
+     * Retorna os usuarios
+     *
+     * @param string $tipo
+     * @return JsonResponse|void
+     */
     public function obterUsuarios(string $tipo)
     {
         try {
@@ -166,5 +205,19 @@ class UsuarioController extends Controller
         } catch (Throwable $throwable) {
             dd($throwable);
         }
+    }
+
+    /**
+     * Exibe os usuarios bloqueados
+     *
+     * @return Application|Factory|View
+     */
+    public function usuariosBloqueados(): Application|View|Factory
+    {
+        $usuarios = User::onlyTrashed()->with('categoriaHabilitacao')->paginate(10);
+
+        return view('usuarios.bloqueados')->with([
+            'usuarios' => $usuarios
+        ]);
     }
 }

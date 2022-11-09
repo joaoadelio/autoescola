@@ -58,6 +58,11 @@ class User extends Authenticatable
 
     public function categoriaHabilitacao(): BelongsToMany
     {
-        return $this->belongsToMany(CategoriaHabilitacao::class, 'usuario_categoria_habilitacaos', 'usuario_id', 'categoria_habilitacaos_id',);
+        return $this->belongsToMany(CategoriaHabilitacao::class, 'usuario_categoria_habilitacaos', 'usuario_id', 'categoria_habilitacaos_id');
+    }
+
+    public function aulas()
+    {
+        return $this->hasMany(Aula::class, 'aluno_id');
     }
 }

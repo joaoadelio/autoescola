@@ -19,4 +19,19 @@ class Aula extends Model
         'status',
         'valor_credito'
     ];
+
+    public function veiculo()
+    {
+        return $this->belongsTo(Veiculo::class);
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(CategoriaHabilitacao::class, 'categoria_habilitacaos_id');
+    }
+
+    public function aluno()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

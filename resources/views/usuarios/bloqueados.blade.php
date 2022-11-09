@@ -7,17 +7,7 @@
                 <div class="card-header">
                     <div class="row flex align-items-center">
                         <div class="col-6">
-                            {{ __('Usuários') }}
-                        </div>
-                        <div class="col-6" style="text-align: end">
-                            <a
-                                type="button"
-                                class="btn btn-outline-primary"
-                                href="{{ route('usuarios.create') }}"
-                            >
-                                <i class="fa fa-plus"></i>
-                                Cadastrar Usuário
-                            </a>
+                            {{ __('Usuários bloqueados') }}
                         </div>
                     </div>
                 </div>
@@ -41,22 +31,15 @@
                                     <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
                                     <td>0</td>
                                     <td style="display:flex">
-                                        <a
-                                            type="button"
-                                            class="btn btn-outline-info"
-                                            style="margin-right: 5px"
-                                            href="{{ route('usuarios.edit', $usuario->id) }}"
-                                        >
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" >
-                                            @method('DELETE')
+                                        <form action="{{ route('usuarios.restaurar', $usuario->id) }}" method="POST">
+                                            @method('put')
                                             @csrf
                                             <button
                                                 type="submit"
-                                                class="btn btn-outline-danger"
+                                                class="btn btn-outline-primary"
+                                                title="Restaurar Usuários"
                                             >
-                                                <i class="fa fa-trash"></i>
+                                                <i class="fa fa-rotate-right"></i>
                                             </button>
                                         </form>
                                     </td>
