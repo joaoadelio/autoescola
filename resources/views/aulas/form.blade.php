@@ -12,9 +12,8 @@
                     </div>
                 </div>
 
-                <div class="card-body">
-                    <aulas-cadastro></aulas-cadastro>
-                </div>
+                <aulas-cadastro></aulas-cadastro>
+
             </div>
         </div>
     </div>

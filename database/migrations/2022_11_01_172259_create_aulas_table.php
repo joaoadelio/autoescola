@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->date('data_agendamento');
             $table->time('hora_agendamento');
-            $table->enum('status', ['Em andamento', 'Concluída', 'Falta']);
+            $table->enum('status', ['Em andamento', 'Concluída', 'Falta', 'Agendado']);
             $table->smallInteger('valor_credito')->default(1);
 
             $table->timestamps();

@@ -53,32 +53,10 @@ Route::resource('veiculos', VeiculoController::class)
 /**
  * Rotas das aulas
  */
+Route::post('horarios', [AulaController::class, 'horarios'])
+    ->middleware(['role:Administrador']);
+
 Route::resource('aulas', AulaController::class)
     ->middleware(['role:Administrador']);
 
 
-Route::post('horarios', function (Request $request) {
-    $data = $request->get('data');
-
-    $hora_inicial = config('horario.hora_inicial');
-    $hora_final = config('horario.hora_final');
-
-    $dataInicial = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', "$data $hora_inicial");
-    $dataFinal = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', "$data $hora_final");
-
-    $horarios[] =[
-        'data' => $data,
-        'hora' => $dataInicial->format('H:i:s'),
-        'status' => false
-    ];
-
-    for ($x = 0; $x <= $dataInicial->diffInMinutes($dataFinal) - 50; $x++) {
-        $horarios[] = [
-            'data' => $data,
-            'hora' => $dataInicial->addMinutes(50)->format('H:i:s'),
-            'status' => false
-        ];
-    }
-
-    return response()->json($horarios);
-});

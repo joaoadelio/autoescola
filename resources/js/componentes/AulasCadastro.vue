@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="card-body">
         <div class="row">
             <div class="col-12 mb-3">
                 <label for="categoria_habilitacao" class="form-label">
@@ -44,7 +44,7 @@
                     {{ v$.form.veiculo_id?.$errors[0]?.$message }}
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-3">
                 <label for="data_agendamento" class="col-form-label">
                     Data <span class="text-danger">*</span>
                 </label>
@@ -67,23 +67,39 @@
                     {{ v$.form.data_agendamento?.$errors[0]?.$message }}
                 </div>
             </div>
-<!--            <div class="col-12">-->
-<!--                <label for="password" class="col-form-label">-->
-<!--                    Aluno <span class="text-danger">*</span>-->
-<!--                </label>-->
-<!--                <input-->
-<!--                    type="text"-->
-<!--                    class="form-control"-->
-<!--                    id="aluno_id"-->
-<!--                    v-model="form.name"-->
-<!--                    :class="{ 'is-invalid': v$.form.aluno_id?.$errors.length }"-->
-<!--                    @blur="v$.form.aluno_id.$touch"-->
-<!--                >-->
-<!--                <div id="aluno_id" class="invalid-feedback">-->
-<!--                    {{ v$.form.aluno_id?.$errors[0]?.$message }}-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="col-12 mb-3">
+                <label for="data_agendamento" class="col-form-label">
+                    Horário <span class="text-danger">*</span>
+                </label>
+
+                <div v-if="opcoes.horarios.length">
+                    <span v-for="(horario, index) in opcoes.horarios">
+                        <input
+                            v-model="form.hora_agendamento"
+                            type="radio"
+                            class="btn-check"
+                            :id="`hora-${index}`"
+                            :key="`hora-${index}`"
+                            :value="horario.hora"
+                            :disabled="horario.status"
+                        >
+                        <label
+                            class="btn btn-outline-primary"
+                            :for="`hora-${index}`"
+                            :key="`hora-${index}`"
+                            style="margin-right: 10px"
+                        >
+                            {{ horario.hora }}
+                        </label>
+                    </span>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <div class="card-footer text-center">
+        <button type="submit" class="btn btn-success" style="margin-right: 10px" @click.prevent="salvarAula">Salvar</button>
+        <button class="btn btn-outline-danger" @click.prevent="cancelar">Cancelar</button>
     </div>
 </template>
 
@@ -99,8 +115,8 @@ function iniciandoForm() {
         'categoria_habilitacaos_id': '',
         'data_agendamento': '',
         'hora_agendamento': '',
-        'status': '',
-        'valor_credito': ''
+        'status': 'Agendado',
+        'valor_credito': 1
     }
 }
 
@@ -141,32 +157,29 @@ export default {
         }
     },
     methods: {
-        salvar: async function () {
+        salvarAula: async function () {
             const result = await this.v$.$validate()
 
             if (!result) {
                 return;
             }
 
-            axios.post('http://localhost:8008/usuarios', this.form)
+            axios.post('http://localhost:8008/aulas', this.form)
                 .then(response => {
-                    console.log(response.data)
+                    setTimeout(function () {
+                        window.location = 'http://localhost:8008/inicio'
+                    }, 1000)
                 }).catch(error => {
-                if (error.response.data.errors) {
-                    console.log(error.response.data.errors)
-                } else {
-                    console.log(error.response.data.message)
-                }
-                // if(error.response.data.errors) {
-                //     Object.keys(error.response.data.errors).map(errKey => {
-                //         Object.keys(error.response.data.errors[errKey]).map(eKey => {
-                //             this.showErrorMessage(error.response.data.errors[errKey][eKey]);
-                //         })
-                //     })
-                // } else {
-                //     this.showErrorMessage('Houve um problema ao tentar salvar os dados! '+error.response.data.message);
-                // }
-            })
+                    if(error.response.data.errors) {
+                        Object.keys(error.response.data.errors).map(errKey => {
+                            Object.keys(error.response.data.errors[errKey]).map(eKey => {
+                                // this.showErrorMessage(error.response.data.errors[errKey][eKey]);
+                            })
+                        })
+                    } else {
+                        // this.showErrorMessage('Houve um problema ao tentar salvar os dados! '+error.response.data.message);
+                    }
+                })
         },
         limparForm: function () {
             this.form = iniciandoForm()
@@ -206,7 +219,8 @@ export default {
         },
         obterHorarios: function () {
             let form = {
-                data: this.form.data_agendamento
+                data: this.form.data_agendamento,
+                aluno: this.form.aluno_id
             }
 
             if (this.form.data_agendamento) {
@@ -217,6 +231,9 @@ export default {
                     // TODO
                 })
             }
+        },
+        cancelar: function () {
+            return window.location = 'http://localhost:8008/inicio'
         }
     },
     watch: {
@@ -233,7 +250,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-
-</style>
