@@ -1,24 +1,39 @@
 import './bootstrap';
-
 import '../sass/app.scss'
-
-// import Toast from "vue-toastification";
-// import "vue-toastification/dist/index.css";
 
 /**
  * Iniciando o VueJS
  */
 import { createApp } from 'vue/dist/vue.esm-bundler';
-const app = createApp({});
 
 /**
  * Componentes em vuejs
  */
-// import UsuarioForm from "./componenetes/UsuarioForm.vue";
-// import UsuarioTable from "./componenetes/UsuarioTable.vue";
-//
-// app.component('UsuarioForm', UsuarioForm);
-// app.component('UsuarioTable', UsuarioTable);
-//
-// app.use(Toast).mount('#app');
+import {Qalendar} from "qalendar";
+import Datepicker from '@vuepic/vue-datepicker';
 
+import moment from 'moment';
+
+import AulasCadastro from "./componentes/AulasCadastro.vue";
+import UsuarioCalendario from "./componentes/UsuarioCalendario.vue";
+
+/**
+ * Style componenets vuejs
+ */
+import '../../node_modules/qalendar/dist/style.css';
+import '@vuepic/vue-datepicker/dist/main.css';
+
+const app = createApp({})
+
+app.config.globalProperties.$filters = {
+    timeAgo(date) {
+        return moment(date).fromNow()
+    },
+}
+
+app.component('Qalendar', Qalendar);
+app.component('Datepicker', Datepicker);
+app.component('UsuarioCalendario', UsuarioCalendario);
+app.component('AulasCadastro', AulasCadastro);
+
+app.mount('#app');

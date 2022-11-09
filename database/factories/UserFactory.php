@@ -24,7 +24,7 @@ class UserFactory extends Factory
             'rg' => '',
             'grupo' => fake()->numberBetween(1, 5),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => '$2y$10$YlXE05ie.E467msBPLa4kuW7EFvyh45Piu3CRrbya6gk7ReaV4GPi', // password
             'remember_token' => Str::random(10),
         ];
     }

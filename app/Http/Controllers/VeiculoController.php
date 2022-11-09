@@ -139,4 +139,22 @@ class VeiculoController extends Controller
             // TODO
         }
     }
+
+    public function obterVeiuculos(Request $request)
+    {
+        try {
+            $veiculos = Veiculo::whereIn('categoria_habilitacaos_id', $request->all())
+                ->whereHas('categoriaHabilitacao')
+                ->whereHas('instrutor')
+                ->with(['categoriaHabilitacao', 'instrutor'])
+                ->get();
+
+            return response()->json([
+                'message' => 'Veículos obtidos com sucesso.',
+                'data' => $veiculos
+            ]);
+        } catch (Throwable $throwable) {
+            dd($throwable);
+        }
+    }
 }

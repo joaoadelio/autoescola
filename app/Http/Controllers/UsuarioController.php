@@ -9,7 +9,6 @@ use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -105,7 +104,7 @@ class UsuarioController extends Controller
     public function update(UsuarioRequest $request, User $usuario): RedirectResponse
     {
         try {
-            $dados = $request->all();dd($dados);
+            $dados = $request->all();
             $grupo_permissao = User::GRUPO;
 
             if (!array_key_exists($dados['grupo'], $grupo_permissao)) {
@@ -148,6 +147,24 @@ class UsuarioController extends Controller
         } catch (Throwable $throwable) {
             dd($throwable);
             // TODO
+        }
+    }
+
+    public function obterUsuarios(string $tipo)
+    {
+        try {
+            $usuarios = User::role($tipo)
+                ->whereHas('categoriaHabilitacao')
+                ->with('categoriaHabilitacao')
+                ->get();
+
+
+            return response()->json([
+                'message' => 'Uusários obtidos com sucesso.',
+                'data' => $usuarios
+            ]);
+        } catch (Throwable $throwable) {
+            dd($throwable);
         }
     }
 }

@@ -20,7 +20,8 @@ return new class extends Migration
             $table->foreignId('categoria_habilitacaos_id')->constrained('categoria_habilitacaos');
             $table->foreignId('veiculo_id')->constrained('veiculos');
 
-            $table->dateTime('data_hora_agendamento');
+            $table->date('data_agendamento');
+            $table->time('hora_agendamento');
             $table->enum('status', ['Em andamento', 'Concluída', 'Falta']);
             $table->smallInteger('valor_credito')->default(1);
 
