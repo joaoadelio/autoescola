@@ -31,18 +31,18 @@ Route::get('/inicio', [HomeController::class, 'index'])->name('home');
  */
 Route::get('usuarios/obter/{role}', [UsuarioController::class, 'obterUsuarios'])
     ->name('usuarios.tipo')
-    ->middleware(['role:Administrador']);
+    ->middleware(['role:Administrador|Administrativo']);
 
 Route::get('usuarios/bloqueados', [UsuarioController::class, 'usuariosBloqueados'])
     ->name('usuarios.bloqueados')
-    ->middleware(['role:Administrador']);
+    ->middleware(['role:Administrador|Administrativo']);
 
 Route::put('usuarios/{usuario}/restaurar', [UsuarioController::class, 'restaurar'])
     ->name('usuarios.restaurar')
-    ->middleware(['role:Administrador']);
+    ->middleware(['role:Administrador|Administrativo']);
 
 Route::resource('usuarios', UsuarioController::class)
-    ->middleware(['role:Administrador']);
+    ->middleware(['role:Administrador|Administrativo']);
 
 /**
  * Rotas dos veiculos
@@ -51,7 +51,7 @@ Route::post('veiculos/obter', [VeiculoController::class, 'obterVeiuculos'])
     ->middleware('auth');
 
 Route::resource('veiculos', VeiculoController::class)
-    ->middleware(['role:Administrador']);
+    ->middleware(['role:Administrador|Administrativo']);
 /**
  * Rotas das aulas
  */

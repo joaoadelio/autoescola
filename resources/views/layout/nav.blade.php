@@ -11,7 +11,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" href="{{ route('home') }}">Aulas</a>
                 </li>
-                @if(!auth()->user()->hasRole('Aluno'))
+                @if(!auth()->user()->hasRole('Aluno') && !auth()->user()->hasRole('Instrutor'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{request()->routeIs('usuarios.bloqueados') || request()->routeIs('usuarios.index') ? 'active' : ''}}"
                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

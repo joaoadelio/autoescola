@@ -9,16 +9,18 @@
                         <div class="col-6">
                             {{ __('Aulas') }}
                         </div>
-                        <div class="col-6" style="text-align: end">
-                            <a
-                                type="button"
-                                class="btn btn-outline-primary"
-                                href="{{ route('aulas.create') }}"
-                            >
-                                <i class="fa fa-plus"></i>
-                                Cadastrar Aula
-                            </a>
-                        </div>
+                        @if(!auth()->user()->hasRole('Aluno') && !auth()->user()->hasRole('Instrutor'))
+                            <div class="col-6" style="text-align: end">
+                                <a
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    href="{{ route('aulas.create') }}"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                    Cadastrar Aula
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

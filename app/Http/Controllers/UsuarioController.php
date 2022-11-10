@@ -68,6 +68,7 @@ class UsuarioController extends Controller
         try {
             $dados = $request->all();
             $grupo_permissao = User::GRUPO;
+            $senha = $dados['password'];
 
             if (!array_key_exists($dados['grupo'], $grupo_permissao)) {
                 throw new Exception('Inserir grupo existente');
@@ -79,6 +80,8 @@ class UsuarioController extends Controller
 
             $usuario->assignRole($grupo_permissao[$dados['grupo']]);
             $usuario->categoriaHabilitacao()->sync($dados['grupo']);
+
+            $dados['password'] = $senha;
 
             Mail::to($usuario)->send(new CadastroUsuario($dados));
 

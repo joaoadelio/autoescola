@@ -5,19 +5,26 @@
             :config="configs"
             :isEditable="false"
             @edit-event="edit"
-            @event-was-clicked="clicked"
-            @delete-event="deleta"
-            @interval-was-clicked="interval"
+            @delete-event="selecionaAulaDeletar"
         />
-
-        <!-- use the modal component, pass in the prop -->
         <transition name="modal">
             <modal v-if="showModal" @close="showModal = false">
 
                 <template v-slot:header>
                     <h1 class="modal-title fs-5">
                         Cancelar Aula
+                        <span class="bg-warning bold">{{ `#${this.modalData.id}` }}</span>
                     </h1>
+                </template>
+                <template v-slot:body>
+                    Dados <br>
+                    <div>
+                        <span class="bold">Instrutor: </span>{{ `${this.modalData.with}` }} <br>
+                        <span class="bold">Data: </span>{{ `${this.modalData.time.start}` }}
+                    </div>
+                </template>
+                <template v-slot:footer>
+                    <button type="button" class="btn btn-outline-success" @click.prevent="cancelarAula">Confirmar</button>
                 </template>
             </modal>
         </transition>
@@ -43,61 +50,65 @@ export default {
                 defaultMode: 'month',
                 locale: 'pt-BR',
                 isSilent: false,
+                style: {
+                    colorSchemes: {
+                        primary: {
+                            color: '#fff',
+                            backgroundColor: '#0d6efd',
+                        },
+                        success: {
+                            color: '#fff',
+                            backgroundColor: '#198754',
+                        },
+                        danger: {
+                            color: '#fff',
+                            backgroundColor: '#dc3545',
+                        },
+                        warning: {
+                            color: '#fff',
+                            backgroundColor: '#fd7e14',
+                        },
+                        secondary: {
+                            color: '#fff',
+                            backgroundColor: '#6c757d',
+                        },
+                        yellow: {
+                            color: '#fff',
+                            backgroundColor: '#ffc107',
+                        }
+                    }
+                },
             },
-            events: [
-                {
-                    title: "Aula categoria B",
-                    with: "Joab Garmier",
-                    time: { start: "2022-11-16 13:00", end: "2022-11-16 13:50" },
-                    color: "green",
-                    isEditable: true,
-                    id: "753944708f0f",
-                    description: "Aula categoria B.",
-                    disableDnD: ['month', 'week', 'day']
-                },
-                {
-                    title: "Aula categoria A",
-                    with: "Yves Cleuder",
-                    time: { start: "2022-11-16 13:50", end: "2022-11-16 14:40" },
-                    color: "green",
-                    isEditable: true,
-                    id: "5602b6f589fc",
-                    disableDnD: ['month', 'week', 'day']
-                },
-                {
-                    title: "Aula categoria A",
-                    with: "Yves Cleuder",
-                    time: { start: "2022-11-17 13:50", end: "2022-11-17 14:40" },
-                    color: "green",
-                    isEditable: true,
-                    id: "5602b6f589fc",
-                    disableDnD: ['month', 'week', 'day']
-                }
-
-            ],
+            events: [],
             showModal: false,
-            opcoes: {
-                aulas: []
-            }
+            opcoes: {},
+            modalData: []
         }
     },
     async mounted() {
         await this.obterAulas();
     },
     methods: {
-        clicked: function () {
-            console.log('clicked')
-        },
         edit: function () {
             console.log('edit')
         },
-        deleta: function () {
-            console.log('deleta')
+        selecionaAulaDeletar: function (aulaId) {
+            this.modalData = this.events.find(evento => evento.id == aulaId);
 
             this.toggleModal()
         },
-        interval: function () {
-            console.log('interval')
+        cancelarAula: function () {
+            if (this.modalData.id) {
+                axios.delete('http://localhost:8008/aulas/' + this.modalData.id)
+                    .then(async response => {
+                        this.mostraToastMensagem(response.data.message, 'success');
+
+                        this.toggleModal();
+                        await this.obterAulas();
+                    }).catch(error => {
+                    this.mostraToastMensagem(error.response.data.message, 'error');
+                })
+            }
         },
         toggleModal: function () {
             this.showModal = !this.showModal;
@@ -105,7 +116,7 @@ export default {
         obterAulas: function () {
             axios.get('http://localhost:8008/aulas/todas')
                 .then(response => {
-                    this.opcoes.aulas = response.data.data;
+                    this.events = response.data.data;
                 }).catch(error => {
                     this.mostraToastMensagem(error.response.data.message, 'error');
                 })

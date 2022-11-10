@@ -3,20 +3,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <slot name="header">
-
-                    </slot>
+                    <slot name="header"></slot>
                 </div>
                 <div class="modal-body">
-                    <slot name="body">
-
-                    </slot>
+                    <slot name="body"></slot>
                 </div>
                 <div class="modal-footer">
-                    <slot name="footer">
-                        <button type="button" class="btn btn-danger">Cancelar</button>
-                        <button type="button" class="btn btn-outline-secondary" @click="$emit('close')">Close</button>
-                    </slot>
+                    <slot name="footer"></slot>
+                    <button type="button" class="btn btn-danger" @click="$emit('close')">Cancelar</button>
                 </div>
             </div>
         </div>

@@ -10,6 +10,14 @@ class Aula extends Model
 {
     use HasFactory, SoftDeletes;
 
+    CONST STATUS = [
+        'Agendada' => 'success',
+        'Cancelada' => 'danger',
+        'Finalizada' => 'secondary',
+        'Falta' => 'warning',
+        'Analise' => 'yellow'
+    ];
+
     protected $fillable = [
         'aluno_id',
         'categoria_habilitacaos_id',

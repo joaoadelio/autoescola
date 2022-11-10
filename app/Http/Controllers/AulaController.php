@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,17 +32,103 @@ class AulaController extends Controller
         try {
             $usuario = auth()->user();
 
-            $aulas = $usuario->hasRole('Aluno') ?
-                Aula::with(['veiculo', 'aluno', 'categoria'])->where('aluno_id', $usuario->id)->get() :
-                Aula::with(['veiculo', 'aluno', 'categoria'])->get();
+            if ($usuario->hasRole('Aluno')) {
+                $aulas = Aula::withTrashed()
+                    ->with([
+                        'veiculo' => function($query) {
+                            $query->with('instrutor');
+                        },
+                        'aluno',
+                        'categoria'
+                    ])
+                    ->where('aluno_id', $usuario->id)
+                    ->get();
+
+            } else if ($usuario->hasRole('Instrutor')) {
+                $veiculos = Veiculo::where('instrutor_id', $usuario->id)->pluck('id')->toArray();
+
+                $aulas = Aula::withTrashed()
+                    ->with([
+                        'veiculo' => function($query) {
+                            $query->with('instrutor');
+                        },
+                        'aluno',
+                        'categoria'
+                    ])
+                    ->whereIn('veiculo_id', $veiculos)
+                    ->get();
+            } else {
+                $aulas = Aula::withTrashed()
+                    ->with([
+                        'veiculo'  => function($query) {
+                            $query->with('instrutor');
+                        },
+                        'aluno',
+                        'categoria'
+                    ])
+                    ->get();
+            }
+
+
+            $aulasParseadas = [];
+
+            foreach ($aulas as $aula) {
+                $hora_inicio = Carbon::create("$aula->data_agendamento $aula->hora_agendamento")
+                    ->format('Y-m-d H:i');
+
+                $hora_termino = Carbon::create("$aula->data_agendamento $aula->hora_agendamento")
+                    ->addMinutes(50)
+                    ->format('Y-m-d H:i');
+
+                $aula = $this->atualizaStatusAulas($aula, $hora_termino);
+
+                $bg = Aula::STATUS[$aula->status] === 'yellow' ?
+                    'bg-' . Aula::STATUS[$aula->status] . '-50' :
+                    'bg-' . Aula::STATUS[$aula->status];
+
+                $aulasParseadas[] = [
+                    'title' => "Aula agendada ({$aula->categoria->categoria})",
+                    'topic' => "Instrutor: " . $aula->veiculo->instrutor->name,
+                    'description' => "Status: <span class='{$bg} text-white p-1 rounded'> $aula->status </span> <br> Veículo: {$aula->veiculo->descricao}",
+                    'with' => "Aluno: " . $aula->aluno->name,
+                    'time' => [
+                        // "2022-11-16 13:00",
+                        'start' => $hora_inicio,
+                        'end' => $hora_termino
+                    ],
+                    'colorScheme' => Aula::STATUS[$aula->status],
+                    'isEditable' => $aula->status == 'Agendada',
+                    'id' => $aula->id,
+                    'disableDnD' => ['month', 'week', 'day'],
+                    'disableResize' => ['week', 'day'],
+                ];
+            }
 
             return response()->json([
                 'message' => 'Aula obtidas com sucesso',
-                'data' => $aulas
+                'data' => $aulasParseadas
             ]);
         } catch (\Throwable $throwable) {
             dd($throwable);
         }
+    }
+
+    /**
+     * Atualiza os status das aulas
+     *
+     * @param Collection $aulas
+     * @return void
+     */
+    public function atualizaStatusAulas(Aula $aula, string $aulaTermino): Aula
+    {
+        $dataHoraAtual = Carbon::now();
+
+        if ($aula->status === 'Agendada' && $dataHoraAtual->gte($aulaTermino)) {
+            $aula->status = 'Finalizada';
+            $aula->save();
+        }
+
+        return $aula->refresh();
     }
 
     /**
@@ -54,7 +141,7 @@ class AulaController extends Controller
         $usuario = auth()->user();
 
         return view('aulas.form')->with([
-            'controle' => (int) $usuario->hasRole('Aluno'),
+            'controle' => (int)$usuario->hasRole('Aluno'),
             'usuarioId' => $usuario->id
         ]);
     }
@@ -67,7 +154,7 @@ class AulaController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        try  {
+        try {
             DB::beginTransaction();
             $data = $request->all();
 
@@ -103,6 +190,9 @@ class AulaController extends Controller
         try {
             DB::beginTransaction();
 
+            $aula->status = 'Cancelada';
+            $aula->save()
+            ;
             $aula->delete();
 
             $this->ajustarCredito($aula->aluno_id, $aula->categoria_habilitacaos_id, 'delete');
@@ -110,17 +200,15 @@ class AulaController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Aula cancelada com sucesso',
-                'data' => []
+                'message' => 'Aula cancelada com sucesso'
             ]);
         } catch (\Throwable $throwable) {
             DB::rollBack();
 
             return response()->json([
-                'message' => 'Aula cancelada com sucesso',
-                'error' => $throwable->getMessage(),
-                'data' => []
-            ]);
+                'message' => 'Não foi possível cancelar aula',
+                'error' => $throwable->getMessage()
+            ], 500);
         }
     }
 
@@ -163,7 +251,7 @@ class AulaController extends Controller
     {
         try {
             $data = $request->get('data');
-            $vehicle_id  = $request->get('veiculo_id');
+            $vehicle_id = $request->get('veiculo_id');
 
             $hora_inicial = config('horario.hora_inicial');
             $hora_final = config('horario.hora_final');
@@ -181,14 +269,14 @@ class AulaController extends Controller
                 ->pluck('hora_agendamento')
                 ->toArray();
 
-            $horarios[] =[
+            $horarios[] = [
                 'data' => $data,
                 'hora' => $dataInicial->format('H:i'),
                 'status' => false
             ];
 
             for ($x = 0; $x <= $dataInicial->diffInMinutes($dataFinal) - 50; $x++) {
-                $hora =  $dataInicial->addMinutes(50);
+                $hora = $dataInicial->addMinutes(50);
 
                 $horarios[] = [
                     'data' => $data,
