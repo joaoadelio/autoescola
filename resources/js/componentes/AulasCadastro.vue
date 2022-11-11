@@ -147,7 +147,7 @@ function iniciandoForm() {
         'categoria_habilitacaos_id': '',
         'data_agendamento': '',
         'hora_agendamento': '',
-        'status': 'Agendado',
+        'status': 'Agendada',
         'valor_credito': 1
     }
 }

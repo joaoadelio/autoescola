@@ -4,27 +4,30 @@
             :events="events"
             :config="configs"
             :isEditable="false"
-            @edit-event="edit"
-            @delete-event="selecionaAulaDeletar"
+            @edit-event="selecionaAula($event, 'editar')"
+            @delete-event="selecionaAula($event, 'deletar')"
         />
         <transition name="modal">
             <modal v-if="showModal" @close="showModal = false">
-
                 <template v-slot:header>
                     <h1 class="modal-title fs-5">
-                        Cancelar Aula
+                        {{ acao === 'editar' ? 'Editar Aula' : 'Cancelar Aula' }}
                         <span class="bg-warning bold">{{ `#${this.modalData.id}` }}</span>
                     </h1>
                 </template>
                 <template v-slot:body>
-                    Dados <br>
-                    <div>
-                        <span class="bold">Instrutor: </span>{{ `${this.modalData.with}` }} <br>
-                        <span class="bold">Data: </span>{{ `${this.modalData.time.start}` }}
+                    <div v-if="acao === 'deletar'">
+                        Dados <br>
+                        <div>
+                            <span class="bold">Instrutor: </span>{{ `${this.modalData.with}` }} <br>
+                            <span class="bold">Data: </span>{{ `${this.modalData.time.start}` }}
+                        </div>
                     </div>
+
+                    <div v-else></div>
                 </template>
                 <template v-slot:footer>
-                    <button type="button" class="btn btn-outline-success" @click.prevent="cancelarAula">Confirmar</button>
+                    <button type="button" class="btn btn-outline-success" @click.prevent="acaoAula">Confirmar</button>
                 </template>
             </modal>
         </transition>
@@ -82,17 +85,20 @@ export default {
             events: [],
             showModal: false,
             opcoes: {},
-            modalData: []
+            modalData: [],
+            acao: ''
         }
     },
     async mounted() {
         await this.obterAulas();
     },
     methods: {
-        edit: function () {
-            console.log('edit')
+        acaoAula: function () {
+            return this.acao === 'editar' ? this.editarAula() : this.cancelarAula()
         },
-        selecionaAulaDeletar: function (aulaId) {
+        selecionaAula: function (aulaId, acao) {
+            this.acao = acao;
+
             this.modalData = this.events.find(evento => evento.id == aulaId);
 
             this.toggleModal()
@@ -109,6 +115,9 @@ export default {
                     this.mostraToastMensagem(error.response.data.message, 'error');
                 })
             }
+        },
+        editarAula: function () {
+          alert('boa');
         },
         toggleModal: function () {
             this.showModal = !this.showModal;

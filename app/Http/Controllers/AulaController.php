@@ -267,7 +267,8 @@ class AulaController extends Controller
 
             $agendamento_horas = Aula::where([
                 'data_agendamento' => Carbon::createFromFormat('d/m/Y', $data)->format('Y-m-d'),
-                'categoria_habilitacaos_id' => $categoria_habilitacaos_id
+                'categoria_habilitacaos_id' => $categoria_habilitacaos_id,
+                'veiculo_id' => $veiculo->id
             ])
                 ->pluck('hora_agendamento')
                 ->toArray();
