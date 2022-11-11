@@ -31,6 +31,7 @@
                     :class="{ 'is-invalid': v$.form.categoria_habilitacaos_id?.$errors.length }"
                     v-model="form.categoria_habilitacaos_id"
                     @blur="v$.form.categoria_habilitacaos_id.$touch"
+                    :disabled="!form.aluno_id"
                 >
                     <option
                         v-for="categoria in opcoes.categorias"

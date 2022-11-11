@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aula;
+use App\Models\Configuracao;
 use App\Models\UsuarioCategoriaHabilitacao;
 use App\Models\Veiculo;
 use Carbon\Carbon;
@@ -253,8 +254,10 @@ class AulaController extends Controller
             $data = $request->get('data');
             $vehicle_id = $request->get('veiculo_id');
 
-            $hora_inicial = config('horario.hora_inicial');
-            $hora_final = config('horario.hora_final');
+            $configuracao = Configuracao::find(1) ?? [];
+
+            $hora_inicial = $configuracao->items['horario_inicio'] . ':00' ?? config('horario.hora_inicial');
+            $hora_final = $configuracao->items['horario_termino'] . ':00' ?? config('horario.hora_final');
 
             $dataInicial = Carbon::createFromFormat('d/m/Y H:i:s', "$data $hora_inicial");
             $dataFinal = Carbon::createFromFormat('d/m/Y H:i:s', "$data $hora_final");

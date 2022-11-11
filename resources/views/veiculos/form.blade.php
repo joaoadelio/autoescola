@@ -26,6 +26,7 @@
                                     class="form-control {{ $errors->has('descricao') ? 'is-invalid' : '' }}"
                                     name="descricao"
                                     id="descricao"
+                                    placeholder="Gol 1.4 Flex 4p 16v"
                                     value="{{ $veiculo->descricao ?? old('descricao') }}"
                                 >
                                 <div id="descricao" class="invalid-feedback">
@@ -148,9 +149,15 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            $('#placa').mask('AAA-9999');
-            $('#ano_fabricacao').mask('9999');
-            $('#ano_modelo').mask('9999');
+            $('#placa').mask('SSS0A00', {
+                placeholder: "LLLNLNN / LLLNNNN"
+            });
+            $('#ano_fabricacao').mask('9999', {
+                placeholder: "0000"
+            });
+            $('#ano_modelo').mask('9999', {
+                placeholder: "0000"
+            });
         });
     </script>
 @endsection

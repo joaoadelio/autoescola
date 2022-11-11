@@ -26,6 +26,7 @@
                                     class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
                                     name="name"
                                     id="name"
+                                    placeholder="João Paulo"
                                     value="{{ $usuario->name ?? old('name') }}"
                                 >
                                 <div id="name" class="invalid-feedback">
@@ -41,6 +42,7 @@
                                     class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
                                     id="email"
                                     name="email"
+                                    placeholder="exemplo@exemplo.com.br"
                                     value="{{ $usuario->email ?? old('email') }}"
                                 >
                                 <div id="email" class="invalid-feedback">
@@ -55,13 +57,13 @@
                                 <select
                                     class="form-control {{ $errors->has('categoria_habilitacao') ? 'is-invalid' : '' }}"
                                     name="categoria_habilitacao[]"
+                                    size="5"
                                     multiple
                                 >
-                                    <option value="">Selecione a categoria habilitação</option>
                                     @foreach($categoria_habilitacao as $categoria)
                                         <option
                                             value="{{ $categoria->id }}"
-                                            @if($categoria->id == old('categoria_habilitacao') || !is_null($usuario) && count($usuario->categoria_habilitacao) &&  $usuario->categoria_habilitacao[0]['id'] == $categoria->id) selected @endif
+                                            @if($categoria->id == old('categoria_habilitacao') || !is_null($usuario) && count($usuario->categoria_habilitacao) &&  in_array($categoria->id, $usuario->categoria_habilitacao->pluck('id')->toArray())) selected @endif
                                         >
                                             {{ $categoria->categoria }}
                                         </option>
@@ -82,6 +84,7 @@
                                     class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}"
                                     id="password"
                                     name="password"
+                                    placeholder="********"
                                     value="{{ old('password') }}"
                                 >
                                 <div id="password" class="invalid-feedback">
@@ -140,7 +143,7 @@
                 </div>
 
                 <div class="card-footer text-center">
-                    <button type="submit" class="btn btn-success" form="cadastrar-usuario">Salvar</button>
+                    <button type="submit" class="btn btn-success" style="margin-right: 10px" form="cadastrar-usuario">Salvar</button>
                     <a href="{{ route('usuarios.index') }}" class="btn btn-outline-danger">
                         Cancelar
                     </a>
@@ -148,4 +151,17 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('script')
+    <script>
+        $(document).ready(function() {
+            $('#cpf').mask('999.999.999-99', {
+                placeholder: '000.000.000-00'
+            });
+            $('#rg').mask('999999999', {
+                placeholder: '000000000'
+            });
+        });
+    </script>
 @endsection

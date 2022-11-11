@@ -53,7 +53,7 @@ class UsuarioController extends Controller
         return view('usuarios.form')->with([
             'usuario' => null,
             'categoria_habilitacao' => $categoria_habilitacao,
-            'grupo_permissao' => User::GRUPO
+            'grupo_permissao' => auth()->user()->hasRole('Administrativo') ? User::ADMINISTRATIVO : User::GRUPO
         ]);
     }
 
@@ -75,6 +75,7 @@ class UsuarioController extends Controller
             }
 
             $dados['password'] = Hash::make($dados['password']);
+            $dados['cpf'] = str_replace(['.', '-'], '', $dados['cpf']);
 
             $usuario = User::create($dados);
 
@@ -123,6 +124,8 @@ class UsuarioController extends Controller
             $dados = $request->all();
             $grupo_permissao = User::GRUPO;
 
+
+
             if (!array_key_exists($dados['grupo'], $grupo_permissao)) {
                 throw new Exception('Inserir grupo existente');
             }
@@ -134,6 +137,8 @@ class UsuarioController extends Controller
             } else {
                 $dados['password'] = Hash::make($dados['password']);
             }
+
+            $dados['cpf'] = str_replace(['.', '-'], '', $dados['cpf']);
 
             $usuario->fill($dados);
             $usuario->save();

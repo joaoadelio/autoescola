@@ -6,7 +6,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <a class="navbar-brand" href="#">AutoEscola</a>
+            <a class="navbar-brand" href="{{ route('home') }}">AutoEscola</a>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 mr-5">
                 <li class="nav-item">
                     <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" href="{{ route('home') }}">Aulas</a>
@@ -28,6 +28,17 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{request()->routeIs('veiculos.index') ? 'active' : ''}}" href="{{ route('veiculos.index') }}">Veículos</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->routeIs('usuarios.bloqueados') || request()->routeIs('usuarios.index') ? 'active' : ''}}"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Configurações
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu">
+                            <li>
+                                <a class="nav-link {{request()->routeIs('configuracoes.index') ? 'active' : ''}}" href="{{ route('configuracoes.index') }}">Expediente AutoEscola</a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
             </ul>

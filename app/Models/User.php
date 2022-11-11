@@ -23,6 +23,11 @@ class User extends Authenticatable
         self::ALUNO => 'Aluno',
     ];
 
+    CONST ADMINISTRATIVO = [
+        3 => 'Instrutor',
+        self::ALUNO => 'Aluno'
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

@@ -66,20 +66,8 @@ class VeiculoController extends Controller
 
             return redirect()->route('veiculos.index');
         } catch (Throwable $throwable) {
-            dd($throwable);
-            // TODO
+            return back()->withInput();
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param Veiculo $veiculo
-     * @return Response
-     */
-    public function show(Veiculo $veiculo)
-    {
-        //
     }
 
     /**

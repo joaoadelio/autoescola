@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VeiculoController;
 use App\Http\Controllers\AulaController;
 use App\Http\Controllers\CategoriaHabilitacaoController;
+use App\Http\Controllers\ConfiguracoesController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -73,3 +74,13 @@ Route::resource('aulas', AulaController::class)
 Route::post('categorias', [CategoriaHabilitacaoController::class, 'obterCategorias'])
     ->middleware('auth');
 
+/**
+ * Rota configurações do sistema
+ */
+Route::get('configuracoes', [ConfiguracoesController::class, 'index'])
+    ->name('configuracoes.index')
+    ->middleware(['role:Administrador|Administrativo']);
+
+Route::any('configurações', [ConfiguracoesController::class, 'store'])
+    ->name('configuracoes.store')
+    ->middleware(['role:Administrador|Administrativo']);
