@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Veiculo extends Model
@@ -28,5 +29,10 @@ class Veiculo extends Model
     public function instrutor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'instrutor_id');
+    }
+
+    public function revisao(): HasMany
+    {
+        return $this->hasMany(VeiculoRevisao::class, 'veiculo_id', 'id');
     }
 }

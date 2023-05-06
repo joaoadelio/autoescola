@@ -23,49 +23,57 @@
                 </div>
 
                 <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>CPF</th>
-                        <th>RG</th>
-                        <th>Crédito</th>
-                        <th>Ações</th>
-                        </thead>
-                        <tbody>
-                            @foreach($usuarios as $usuario)
-                                <tr >
-                                    <td>{{ $usuario->name }}</td>
-                                    <td>{{ $usuario->email }}</td>
-                                    <td>{{ $usuario->cpf }}</td>
-                                    <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
-                                    <td>0</td>
-                                    <td style="display:flex">
-                                        <a
-                                            type="button"
-                                            class="btn btn-outline-info"
-                                            style="margin-right: 5px"
-                                            href="{{ route('usuarios.edit', $usuario->id) }}"
-                                        >
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" >
-                                            @method('DELETE')
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                class="btn btn-outline-danger"
+                    @if(count($usuarios))
+                        <table class="table table-hover">
+                            <thead>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>CPF</th>
+                            <th>RG</th>
+                            <th>Crédito</th>
+                            <th>Ações</th>
+                            </thead>
+                            <tbody>
+                                @foreach($usuarios as $usuario)
+                                    <tr >
+                                        <td>{{ $usuario->name }}</td>
+                                        <td>{{ $usuario->email }}</td>
+                                        <td>{{ $usuario->cpf }}</td>
+                                        <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
+                                        <td>0</td>
+                                        <td style="display:flex">
+                                            <a
+                                                type="button"
+                                                class="btn btn-outline-info"
+                                                style="margin-right: 5px"
+                                                href="{{ route('usuarios.edit', $usuario->id) }}"
+                                                title="Editar"
                                             >
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                            <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" >
+                                                @method('DELETE')
+                                                @csrf
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-warning"
+                                                    title="Bloquear"
+                                                >
+                                                    <i class="fa fa-lock"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
 
-                    {{ $usuarios->links() }}
+                        {{ $usuarios->links() }}
+                    @else
+                        <div class="p-5 text-center">
+                            Não há usuários cadastrados
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

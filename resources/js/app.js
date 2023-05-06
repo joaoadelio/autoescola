@@ -13,19 +13,20 @@ import {Qalendar} from "qalendar";
 import Datepicker from '@vuepic/vue-datepicker';
 
 import Toast from "vue-toastification";
-import "vue-toastification/dist/index.css";
 
 import moment from 'moment';
 
 import AulasCadastro from "./componentes/AulasCadastro.vue";
 import UsuarioCalendario from "./componentes/UsuarioCalendario.vue";
 import Modal from "./componentes/Modal.vue";
+import VeiculoRevisao from "./componentes/VeiculoRevisao.vue";
 
 /**
  * Style componenets vuejs
  */
 import '../../node_modules/qalendar/dist/style.css';
 import '@vuepic/vue-datepicker/dist/main.css';
+import "vue-toastification/dist/index.css";
 
 const app = createApp({})
 
@@ -40,5 +41,6 @@ app.component('Datepicker', Datepicker);
 app.component('UsuarioCalendario', UsuarioCalendario);
 app.component('AulasCadastro', AulasCadastro);
 app.component('Modal', Modal);
+app.component('VeiculoRevisao', VeiculoRevisao);
 
 app.use(Toast).mount('#app');

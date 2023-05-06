@@ -11,7 +11,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Throwable;
 
 class VeiculoController extends Controller
@@ -131,7 +130,13 @@ class VeiculoController extends Controller
     public function obterVeiuculos(Request $request)
     {
         try {
-            $veiculos = Veiculo::whereIn('categoria_habilitacaos_id', $request->all())
+            $categorias = $request->all();
+
+            if (empty($categorias)) {
+                $categorias = CategoriaHabilitacao::TODAS;
+            }
+
+            $veiculos = Veiculo::whereIn('categoria_habilitacaos_id', $categorias)
                 ->whereHas('categoriaHabilitacao')
                 ->whereHas('instrutor')
                 ->with(['categoriaHabilitacao', 'instrutor'])
@@ -142,7 +147,10 @@ class VeiculoController extends Controller
                 'data' => $veiculos
             ]);
         } catch (Throwable $throwable) {
-            dd($throwable);
+            return response()->json([
+                'message' => 'Não foi possivel obter os veículos',
+                'error' => $throwable->getMessage()
+            ], 500);
         }
     }
 }

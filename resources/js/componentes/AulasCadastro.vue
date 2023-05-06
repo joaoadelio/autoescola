@@ -139,6 +139,7 @@ import {useVuelidate} from '@vuelidate/core';
 import {helpers, required} from '@vuelidate/validators';
 import moment from 'moment';
 import { useToast } from "vue-toastification";
+import APP_URL from '../utils/url';
 
 function iniciandoForm() {
     return {
@@ -223,12 +224,12 @@ export default {
 
             this.loading.cadastro = true;
 
-            axios.post('http://localhost:8008/aulas', this.form)
+            axios.post(`${APP_URL}/aulas`, this.form)
                 .then(response => {
                     this.mostraToastMensagem(response.data.message, 'success');
 
                     setTimeout(function () {
-                        window.location = 'http://localhost:8008/inicio'
+                        window.location = `${APP_URL}/inicio`
                     }, 1500)
                 }).catch(error => {
                     if (error.response.data.errors) {
@@ -245,7 +246,7 @@ export default {
                 })
         },
         obterAlunos: function () {
-            axios.get('http://localhost:8008/usuarios/obter/aluno')
+            axios.get(`${APP_URL}/usuarios/obter/aluno`)
                 .then(response => {
                     this.opcoes.alunos = response.data.data;
                 }).catch(error => {
@@ -261,7 +262,7 @@ export default {
             })
         },
         obterCategorias: async function () {
-            axios.post('http://localhost:8008/categorias', {alunoId: this.form.aluno_id})
+            axios.post(`${APP_URL}/categorias`, {alunoId: this.form.aluno_id})
                 .then(response => {
                     this.opcoes.categorias = response.data.data;
                 }).catch(error => {
@@ -273,12 +274,12 @@ export default {
                 this.form.categoria_habilitacaos_id
             ];
 
-            axios.post('http://localhost:8008/veiculos/obter', this.categorias)
+            axios.post(`${APP_URL}/veiculos/obter`, this.categorias)
                 .then(response => {
                     this.opcoes.veiculos = response.data.data;
                 }).catch(error => {
-                // TODO
-            })
+                    this.mostraToastMensagem(error.response.data.message, 'error');
+                })
         },
         obterHorarios: function () {
             let form = {
@@ -287,7 +288,7 @@ export default {
             }
 
             if (this.form.data_agendamento) {
-                axios.post('http://localhost:8008/horarios', form)
+                axios.post(`${APP_URL}/horarios`, form)
                     .then(response => {
                         this.opcoes.horarios = response.data;
                     }).catch(error => {
@@ -304,7 +305,7 @@ export default {
                 categoria_habilitacao_id: this.form.categoria_habilitacaos_id
             };
 
-            axios.post('http://localhost:8008/aulas/data/aluno', form)
+            axios.post(`${APP_URL}/aulas/data/aluno`, form)
                 .then(response => {
                     this.opcoes.horarios = response.data;
                 }).catch(error => {
@@ -316,7 +317,7 @@ export default {
             this.toast[type](msg);
         },
         cancelar: function () {
-            return window.location = 'http://localhost:8008/inicio'
+            return window.location = `${APP_URL}/inicio`
         }
     },
     watch: {

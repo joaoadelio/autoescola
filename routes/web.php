@@ -8,6 +8,8 @@ use App\Http\Controllers\VeiculoController;
 use App\Http\Controllers\AulaController;
 use App\Http\Controllers\CategoriaHabilitacaoController;
 use App\Http\Controllers\ConfiguracoesController;
+use App\Http\Controllers\VeiculoRevisaoController;
+use App\Http\Controllers\PagamentoTaxaController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -51,16 +53,33 @@ Route::resource('usuarios', UsuarioController::class)
 Route::post('veiculos/obter', [VeiculoController::class, 'obterVeiuculos'])
     ->middleware('auth');
 
+Route::get('veiculos/revisao/todos', [VeiculoRevisaoController::class, 'obterAgendamentos'])
+    ->middleware(['role:Administrador|Administrativo']);
+
+Route::resource('veiculos/revisao', VeiculoRevisaoController::class)
+    ->middleware(['role:Administrador|Administrativo']);
+
 Route::resource('veiculos', VeiculoController::class)
     ->middleware(['role:Administrador|Administrativo']);
 /**
  * Rotas das aulas
  */
+Route::post('aulas/auditar', [AulaController::class, 'auditarAula'])
+    ->middleware(['role:Administrador|Administrativo|Instrutor']);
+
 Route::get('aulas/todas', [AulaController::class, 'obterAulas'])
     ->middleware('auth');
 
 Route::post('aulas/data/aluno', [AulaController::class, 'aulasDataAluno'])
     ->middleware('auth');
+
+Route::get('aulas/reagendamentos', [AulaController::class, 'reagendamentos'])
+    ->name('aulas.reagendamento')
+    ->middleware(['role:Administrador|Administrativo']);
+
+Route::put('aulas/{aula}/aprovar', [AulaController::class, 'aprovar'])
+    ->name('aulas.aprovar')
+    ->middleware(['role:Administrador|Administrativo']);
 
 Route::post('horarios', [AulaController::class, 'horarios'])
     ->middleware('auth');
@@ -84,3 +103,15 @@ Route::get('configuracoes', [ConfiguracoesController::class, 'index'])
 Route::any('configurações', [ConfiguracoesController::class, 'store'])
     ->name('configuracoes.store')
     ->middleware(['role:Administrador|Administrativo']);
+
+
+/**
+ * Rotas de Pagamento de taxas
+ */
+Route::get('pagamento-taxa', [PagamentoTaxaController::class, 'index'])
+    ->name('pagamento-taxa.index')
+    ->middleware('auth');
+
+Route::post('pagamento-taxa/{aula}', [PagamentoTaxaController::class, 'pagar'])
+    ->name('pagamento-taxa.pagar')
+    ->middleware('auth');

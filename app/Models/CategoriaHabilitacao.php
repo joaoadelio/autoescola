@@ -21,6 +21,14 @@ class CategoriaHabilitacao extends Model
         self::B
     ];
 
+    CONST TODAS = [
+        self::A,
+        self::B,
+        self::C,
+        self::D,
+        self::E,
+    ];
+
     protected $fillable = [
         'categoria',
         'descricao'

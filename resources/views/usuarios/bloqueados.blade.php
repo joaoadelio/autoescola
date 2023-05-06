@@ -13,42 +13,48 @@
                 </div>
 
                 <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>CPF</th>
-                        <th>RG</th>
-                        <th>Crédito</th>
-                        <th>Ações</th>
-                        </thead>
-                        <tbody>
-                            @foreach($usuarios as $usuario)
-                                <tr >
-                                    <td>{{ $usuario->name }}</td>
-                                    <td>{{ $usuario->email }}</td>
-                                    <td>{{ $usuario->cpf }}</td>
-                                    <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
-                                    <td>0</td>
-                                    <td style="display:flex">
-                                        <form action="{{ route('usuarios.restaurar', $usuario->id) }}" method="POST">
-                                            @method('put')
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                class="btn btn-outline-primary"
-                                                title="Restaurar Usuários"
-                                            >
-                                                <i class="fa fa-rotate-right"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    @if(count($usuarios))
+                        <table class="table table-hover">
+                            <thead>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>CPF</th>
+                            <th>RG</th>
+                            <th>Crédito</th>
+                            <th>Ações</th>
+                            </thead>
+                            <tbody>
+                                @foreach($usuarios as $usuario)
+                                    <tr >
+                                        <td>{{ $usuario->name }}</td>
+                                        <td>{{ $usuario->email }}</td>
+                                        <td>{{ $usuario->cpf }}</td>
+                                        <td>{{ $usuario->rg !== '' ? $usuario->rg : '-' }}</td>
+                                        <td>0</td>
+                                        <td style="display:flex">
+                                            <form action="{{ route('usuarios.restaurar', $usuario->id) }}" method="POST">
+                                                @method('put')
+                                                @csrf
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-primary"
+                                                    title="Restaurar"
+                                                >
+                                                    <i class="fa fa-rotate-right"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
 
-                    {{ $usuarios->links() }}
+                        {{ $usuarios->links() }}
+                    @else
+                        <div class="p-5 text-center">
+                            Não há usuários bloqueados
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

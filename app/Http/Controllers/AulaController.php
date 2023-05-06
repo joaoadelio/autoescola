@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReagendarAula;
 use App\Models\Aula;
 use App\Models\Configuracao;
+use App\Models\User;
 use App\Models\UsuarioCategoriaHabilitacao;
 use App\Models\Veiculo;
+use App\Models\VeiculoRevisao;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class AulaController extends Controller
 {
@@ -70,7 +74,6 @@ class AulaController extends Controller
                     ->get();
             }
 
-
             $aulasParseadas = [];
 
             foreach ($aulas as $aula) {
@@ -81,16 +84,16 @@ class AulaController extends Controller
                     ->addMinutes(50)
                     ->format('Y-m-d H:i');
 
-                $aula = $this->atualizaStatusAulas($aula, $hora_termino);
-
-                $bg = Aula::STATUS[$aula->status] === 'yellow' ?
-                    'bg-' . Aula::STATUS[$aula->status] . '-50' :
-                    'bg-' . Aula::STATUS[$aula->status];
+                $bg = 'bg-' . Aula::STATUS[$aula->status];
 
                 $aulasParseadas[] = [
                     'title' => "Aula agendada ({$aula->categoria->categoria})",
                     'topic' => "Instrutor: " . $aula->veiculo->instrutor->name,
-                    'description' => "Status: <span class='{$bg} text-white p-1 rounded'> $aula->status </span> <br> Veículo: {$aula->veiculo->descricao}",
+                    'description' => "
+                        Status: <span class='{$bg} text-white p-1 rounded'> $aula->status </span> <br>
+                        Veículo: {$aula->veiculo->descricao} <br>
+                        Categoria: {$aula->categoria->categoria}
+                    ",
                     'with' => "Aluno: " . $aula->aluno->name,
                     'time' => [
                         // "2022-11-16 13:00",
@@ -98,7 +101,7 @@ class AulaController extends Controller
                         'end' => $hora_termino
                     ],
                     'colorScheme' => Aula::STATUS[$aula->status],
-                    'isEditable' => $aula->status == 'Agendada',
+                    'isEditable' => in_array($aula->status, Aula::STATUS_EDITAVEIS),
                     'id' => $aula->id,
                     'disableDnD' => ['month', 'week', 'day'],
                     'disableResize' => ['week', 'day'],
@@ -110,26 +113,47 @@ class AulaController extends Controller
                 'data' => $aulasParseadas
             ]);
         } catch (\Throwable $throwable) {
-            dd($throwable);
+            return response()->json([
+                'message' => 'Não foi possivel obter as Aulas',
+                'error' => $throwable->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Atualiza os status das aulas
+     * Retorna as aulas com status para reagendamento
      *
-     * @param Collection $aulas
-     * @return void
+     * @return Factory|View|Application
      */
-    public function atualizaStatusAulas(Aula $aula, string $aulaTermino): Aula
+    public function reagendamentos(): Factory|View|Application
     {
-        $dataHoraAtual = Carbon::now();
+        $aulas = Aula::with([
+            'veiculo' => function($query) {
+                $query->with('instrutor');
+            },
+            'aluno',
+            'categoria'
+        ])->where('status', 'Analise')->paginate(10);
 
-        if ($aula->status === 'Agendada' && $dataHoraAtual->gte($aulaTermino)) {
-            $aula->status = 'Finalizada';
+        return view('aulas.reagendamento')->with([
+            'aulas' => $aulas
+        ]);
+    }
+
+    /**
+     * @param Aula $aula
+     * @return RedirectResponse
+     */
+    public function aprovar(Aula $aula): RedirectResponse
+    {
+        try {
+            $aula->status = 'Agendada';
             $aula->save();
-        }
 
-        return $aula->refresh();
+            return redirect()->back();
+        } catch (\Throwable $throwable) {
+            dd($throwable);
+        }
     }
 
     /**
@@ -178,6 +202,61 @@ class AulaController extends Controller
             DB::rollBack();
             dd($throwable);
         }
+    }
+
+    /**
+     * Atualiza o horario e data da aula
+     *
+     * @param Aula $aula
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Aula $aula, Request $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $data = $request->all();
+
+            $veiculo = Veiculo::find($aula->veiculo_id);
+
+            $usuario = User::find($aula->aluno_id);
+
+            $aula->categoria_habilitacaos_id = $veiculo->categoriaHabilitacao->id;
+            $aula->data_agendamento = Carbon::createFromFormat('d/m/Y', $data['data_agendamento']);
+            $aula->status = 'Analise';
+            $aula->save();
+
+            DB::commit();
+
+            $this->gerarTaxaReagendamento($aula->refresh());
+
+            Mail::to($usuario)->send(new ReagendarAula($aula->refresh()->toArray()));
+
+            return response()->json([
+                'message' => 'Agendamento aula alterada, aguarde até aprovação do administrativo',
+                'data' => $aula->refresh()
+            ]);
+        } catch (\Throwable $throwable) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Não foi possível alterar o agendamento',
+                'error' => $throwable->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Irá gerar uma taxa toda vez que houver um reagamento
+     *
+     * @param Aula $aula
+     * @return void
+     */
+    public function gerarTaxaReagendamento(Aula $aula): void
+    {
+        $aula->taxa = true;
+        $aula->save();
     }
 
     /**
@@ -246,13 +325,20 @@ class AulaController extends Controller
      * Retorna os horarios das aulas, tanto disponiveis quanto ocupados
      *
      * @param Request $request
-     * @return JsonResponse|void
+     * @return JsonResponse
      */
-    public function horarios(Request $request)
+    public function horarios(Request $request): JsonResponse
     {
         try {
-            $data = $request->get('data');
-            $vehicle_id = $request->get('veiculo_id');
+            if($request->get('aula_id')) {
+                $aula = Aula::find($request->get('aula_id'));
+
+                $data = Carbon::createFromFormat('Y-m-d', $aula->data_agendamento)->format('d/m/Y');
+                $veiculo_id = $aula->veiculo_id;
+            } else {
+                $data = $request->get('data');
+                $veiculo_id = $request->get('veiculo_id');
+            }
 
             $configuracao = Configuracao::find(1) ?? [];
 
@@ -262,7 +348,7 @@ class AulaController extends Controller
             $dataInicial = Carbon::createFromFormat('d/m/Y H:i:s', "$data $hora_inicial");
             $dataFinal = Carbon::createFromFormat('d/m/Y H:i:s', "$data $hora_final");
 
-            $veiculo = Veiculo::find($vehicle_id);
+            $veiculo = Veiculo::find($veiculo_id);
             $categoria_habilitacaos_id = $veiculo->categoriaHabilitacao->id;
 
             $agendamento_horas = Aula::where([
@@ -272,6 +358,15 @@ class AulaController extends Controller
             ])
                 ->pluck('hora_agendamento')
                 ->toArray();
+
+            $revisoes = VeiculoRevisao::where([
+                'data_agendamento' => Carbon::createFromFormat('d/m/Y', $data)->format('Y-m-d'),
+                'veiculo_id' => $veiculo->id
+            ])
+                ->pluck('hora_agendamento')
+                ->toArray();
+
+            $horarios_reservados = array_merge($agendamento_horas, $revisoes);
 
             $horarios[] = [
                 'data' => $data,
@@ -285,13 +380,16 @@ class AulaController extends Controller
                 $horarios[] = [
                     'data' => $data,
                     'hora' => $hora->format('H:i'),
-                    'status' => in_array($hora->format('H:i:s'), $agendamento_horas)
+                    'status' => in_array($hora->format('H:i:s'), $horarios_reservados)
                 ];
             }
 
             return response()->json($horarios);
         } catch (\Throwable $throwable) {
-            dd($throwable);
+            return response()->json([
+                'message' => 'Não foi possível obter os horários das aulas',
+                'error' => $throwable->getMessage()
+            ], 500);
         }
     }
 
@@ -325,6 +423,32 @@ class AulaController extends Controller
             return response()->json([
                 'message' => $throwable->getMessage(),
                 'data' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Instrutor audita a aula
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function auditarAula(Request $request): JsonResponse
+    {
+        try {
+            $id = $request->get('aula_id');
+            $status = $request->get('status');
+
+            $aula = Aula::findOrFail($id);
+            $aula->status  = $status;
+            $aula->save();
+
+            return response()->json([
+                'message' => 'Aula auditada com sucesso'
+            ]);
+        } catch (\Throwable $throwable) {
+            return response()->json([
+                'message' => 'Não foi possível auditar a aula'
             ], 500);
         }
     }

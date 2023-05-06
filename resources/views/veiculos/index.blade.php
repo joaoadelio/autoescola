@@ -23,49 +23,55 @@
                 </div>
 
                 <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <th>Descrição</th>
-                            <th>Placa</th>
-                            <th>Ano Fabricação / Modelo</th>
-                            <th>Categoria</th>
-                            <th>Instrutor</th>
-                            <th>Ações</th>
-                        </thead>
-                        <tbody>
-                            @foreach($veiculos as $veiculo)
-                                <tr>
-                                    <td>{{ $veiculo->descricao }}</td>
-                                    <td style="text-transform:uppercase">{{ $veiculo->placa }}</td>
-                                    <td>{{ $veiculo->ano_fabricacao . ' / ' . $veiculo->ano_modelo }}</td>
-                                    <td>{{ $veiculo->categoriaHabilitacao->categoria }}</td>
-                                    <td>{{ $veiculo->instrutor->name ?? '-' }}</td>
-                                    <td style="display: flex">
-                                        <a
-                                            type="button"
-                                            class="btn btn-outline-info"
-                                            style="margin-right: 5px"
-                                            href="{{ route('veiculos.edit', $veiculo->id) }}"
-                                        >
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('veiculos.destroy', $veiculo->id) }}" method="POST" >
-                                            @method('DELETE')
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                class="btn btn-outline-danger"
+                    @if (count($veiculos))
+                        <table class="table table-striped">
+                            <thead>
+                                <th>Descrição</th>
+                                <th>Placa</th>
+                                <th>Ano Fabricação / Modelo</th>
+                                <th>Categoria</th>
+                                <th>Instrutor</th>
+                                <th>Ações</th>
+                            </thead>
+                            <tbody>
+                                @foreach($veiculos as $veiculo)
+                                    <tr>
+                                        <td>{{ $veiculo->descricao }}</td>
+                                        <td style="text-transform:uppercase">{{ $veiculo->placa }}</td>
+                                        <td>{{ $veiculo->ano_fabricacao . ' / ' . $veiculo->ano_modelo }}</td>
+                                        <td>{{ $veiculo->categoriaHabilitacao->categoria }}</td>
+                                        <td>{{ $veiculo->instrutor->name ?? '-' }}</td>
+                                        <td style="display: flex">
+                                            <a
+                                                type="button"
+                                                class="btn btn-outline-info"
+                                                style="margin-right: 5px"
+                                                href="{{ route('veiculos.edit', $veiculo->id) }}"
                                             >
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                            <form action="{{ route('veiculos.destroy', $veiculo->id) }}" method="POST" >
+                                                @method('DELETE')
+                                                @csrf
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-danger"
+                                                >
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
 
-                    {{ $veiculos->links() }}
+                        {{ $veiculos->links() }}
+                    @else
+                        <div class="p-5 text-center">
+                            Não há veículos cadastrados
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

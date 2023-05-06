@@ -9,7 +9,7 @@
                         <div class="col-6">
                             {{ __('Aulas') }}
                         </div>
-                        @if(!auth()->user()->hasRole('Aluno') && !auth()->user()->hasRole('Instrutor'))
+                        @if(!auth()->user()->hasRole('Instrutor'))
                             <div class="col-6" style="text-align: end">
                                 <a
                                     type="button"
@@ -25,7 +25,9 @@
                 </div>
 
                 <div class="card-body">
-                    <usuario-calendario></usuario-calendario>
+                    <usuario-calendario
+                        :controle="{{ (int) auth()->user()->hasRole('Instrutor') }}"
+                    ></usuario-calendario>
                 </div>
             </div>
         </div>

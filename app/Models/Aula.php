@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Aula extends Model
@@ -18,6 +19,11 @@ class Aula extends Model
         'Analise' => 'yellow'
     ];
 
+    CONST STATUS_EDITAVEIS = [
+        'Agendada',
+        'Falta'
+    ];
+
     protected $fillable = [
         'aluno_id',
         'categoria_habilitacaos_id',
@@ -25,20 +31,21 @@ class Aula extends Model
         'data_agendamento',
         'hora_agendamento',
         'status',
-        'valor_credito'
+        'valor_credito',
+        'taxa'
     ];
 
-    public function veiculo()
+    public function veiculo(): BelongsTo
     {
         return $this->belongsTo(Veiculo::class);
     }
 
-    public function categoria()
+    public function categoria(): BelongsTo
     {
         return $this->belongsTo(CategoriaHabilitacao::class, 'categoria_habilitacaos_id');
     }
 
-    public function aluno()
+    public function aluno(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

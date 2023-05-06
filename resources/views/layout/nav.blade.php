@@ -8,9 +8,28 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <a class="navbar-brand" href="{{ route('home') }}">AutoEscola</a>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 mr-5">
-                <li class="nav-item">
+                @if(auth()->user()->hasRole('Aluno') || auth()->user()->hasRole('Instrutor'))
                     <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" href="{{ route('home') }}">Aulas</a>
-                </li>
+
+                    @if(auth()->user()->hasRole('Aluno'))
+                        <a class="nav-link {{request()->routeIs('pagamento-taxa.index') ? 'active' : ''}}" href="{{ route('pagamento-taxa.index') }}">Pagamento Taxas</a>
+                    @endif
+                @else
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->routeIs('home') || request()->routeIs('aulas.reagendamento') ? 'active' : ''}}"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Aulas
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu">
+                            <li>
+                                <a class="nav-link {{request()->routeIs('home') ? 'active' : ''}}" href="{{ route('home') }}">Agendadas</a>
+                            </li>
+                            <li>
+                                <a class="nav-link {{request()->routeIs('aulas.reagendamento') ? 'active' : ''}}" href="{{ route('aulas.reagendamento') }}">Reagendamentos</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
                 @if(!auth()->user()->hasRole('Aluno') && !auth()->user()->hasRole('Instrutor'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{request()->routeIs('usuarios.bloqueados') || request()->routeIs('usuarios.index') ? 'active' : ''}}"
@@ -26,8 +45,19 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{request()->routeIs('veiculos.index') ? 'active' : ''}}" href="{{ route('veiculos.index') }}">Veículos</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->routeIs('veiculos.index') || request()->routeIs('revisao.index') ? 'active' : ''}}"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Veículos
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu">
+                            <li>
+                                <a class="nav-link {{request()->routeIs('veiculos.index') ? 'active' : ''}}" href="{{ route('veiculos.index') }}">Lista</a>
+                            </li>
+                            <li>
+                                <a class="nav-link {{request()->routeIs('revisao.index') ? 'active' : ''}}" href="{{ route('revisao.index') }}">Revisão Detran</a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{request()->routeIs('usuarios.bloqueados') || request()->routeIs('usuarios.index') ? 'active' : ''}}"
@@ -36,7 +66,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu">
                             <li>
-                                <a class="nav-link {{request()->routeIs('configuracoes.index') ? 'active' : ''}}" href="{{ route('configuracoes.index') }}">Expediente AutoEscola</a>
+                                <a class="nav-link {{request()->routeIs('configuracoes.index') ? 'active' : ''}}" href="{{ route('configuracoes.index') }}">Expediente</a>
                             </li>
                         </ul>
                     </li>
